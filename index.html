@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Web Cá Nhân | Phạm Trí Dũng</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Định dạng chung */
+        :root {
+            --primary-color: #00bcd4; /* Xanh ngọc */
+            --secondary-color: #673ab7; /* Tím */
+            --text-dark: #333;
+            --text-light: #fff;
+            --bg-light: #f4f4f4;
+            --card-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif; /* Cần font từ Google Fonts nếu muốn y hệt */
+        }
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        /* Header cố định */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 5%;
+            background-color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Phần Hero (Giới thiệu) */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(103, 58, 183, 0.9), rgba(0, 188, 212, 0.9)), url('anh_nen.jpg') no-repeat center center/cover;
+            color: var(--text-light);
+            padding: 0 5%;
+            margin-top: 60px; /* Chiều cao header */
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2.5rem;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            background-color: #0097a7;
+        }
+
+        /* Phần Dự Án & Tải Về (Các Thẻ) */
+        .projects {
+            padding: 5rem 5%;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--secondary-color);
+        }
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+        .project-card {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            text-align: center;
+            border-bottom: 4px solid transparent;
+        }
+        .project-card:hover {
+            transform: translateY(-10px);
+            border-bottom: 4px solid var(--primary-color);
+        }
+        .project-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+        .project-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        .project-card p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background-color: #fff;
+            text-align: center;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+        }
+        .social-links {
+            margin-top: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        .social-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Responsive (Tương thích di động) */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .nav-links { display: none; } /* Ẩn menu khi ở di động */
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <div class="logo">Phạm Trí Dũng</div>
+        <nav class="nav-links">
+            <a href="#trang-chu">Trang Chủ</a>
+            <a href="#du-an">Dự Án</a>
+            <a href="#lien-he">Liên Hệ</a>
+        </nav>
+    </header>
+
+    <section id="trang-chu" class="hero">
+        <h1>CHÀO MỪNG ĐẾN VỚI TRANG WEB CỦA PHẠM TRÍ DŨNG</h1>
+        <p>Chào bạn, tôi là sinh viên Kỹ thuật, đam mê công nghệ và sáng tạo nội dung. Đây là nơi tôi chia sẻ các dự án, bài viết và tài liệu mà tôi thích.</p>
+        <a href="#du-an" class="btn">Xem Dự Án</a>
+    </section>
+
+    <section id="du-an" class="projects">
+        <h2 class="section-title">Sản Phẩm & Tải Về</h2>
+        
+        <div class="project-grid">
+            <div class="project-card">
+                <i class="fas fa-code-branch project-icon"></i>
+                <h3>Game Flappy Bird (Python)</h3>
+                <p>Một bản clone nhỏ của Flappy Bird, viết bằng Python/Pygame. Dành cho người mới học.</p>
+                <a href="#" class="btn btn-sm">Tải Về</a>
+            </div>
+
+            <div class="project-card">
+                <i class="fas fa-file-pdf project-icon"></i>
+                <h3>Tài Liệu Ôn Tập Kỹ Thuật</h3>
+                <p>Tổng hợp các đề thi và tài liệu môn Kỹ thuật lập trình và Cấu trúc dữ liệu.</p>
+                <a href="#" class="btn btn-sm">Tải Về</a>
+            </div>
+
+            <div class="project-card">
+                <i class="fas fa-camera project-icon"></i>
+                <h3>Album Ảnh Chuyến Đi</h3>
+                <p>Một bộ sưu tập những hình ảnh đẹp tôi chụp trong chuyến đi thực tế của mình.</p>
+                <a href="#" class="btn btn-sm">Xem Ngay</a>
+            </div>
+
+            <div class="project-card">
+                <i class="fas fa-book-open project-icon"></i>
+                <h3>Bài Viết: "Kỹ Thuật Và Tôi"</h3>
+                <p>Chia sẻ về hành trình của tôi từ một người mới đến một sinh viên đam mê kỹ thuật.</p>
+                <a href="#" class="btn btn-sm">Đọc Thêm</a>
+            </div>
+        </div>
+    </section>
+
+    <footer id="lien-he">
+        <p>&copy; 2024 Phạm Trí Dũng. Thiết kế & Phát triển.</p>
+        <div class="social-links">
+            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
+            <a href="mailto:phamtridung10112005@email.com"><i class="fas fa-envelope"></i></a>
+        </div>
+    </footer>
+
+</body>
+</html>
