@@ -3,64 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Web Cá Nhân | Phạm Trí Dũng</title>
+    <title>Jun Phạm | Premium Auto Tools</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* Định dạng chung */
+        /* CSS Variables - Cyberpunk Theme */
         :root {
-            --primary-color: #00bcd4; /* Xanh ngọc */
-            --secondary-color: #673ab7; /* Tím */
-            --text-dark: #333;
-            --text-light: #fff;
-            --bg-light: #f4f4f4;
-            --card-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --bg-dark: #0b0c10;
+            --card-bg: #1f2833;
+            --primary: #66fcf1; /* Cyan */
+            --secondary: #45a29e;
+            --accent: #c5c6c7;
+            --text-main: #ffffff;
+            --gradient: linear-gradient(90deg, #66fcf1, #b400ff);
             --transition: all 0.3s ease;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif; /* Cần font từ Google Fonts nếu muốn y hệt */
-        }
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-        a {
-            text-decoration: none;
-            color: inherit;
-            transition: var(--transition);
-        }
 
-        /* Header cố định */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--accent);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        a { text-decoration: none; color: inherit; transition: var(--transition); }
+
+        /* Header & Navigation */
         header {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 1rem 5%;
-            background-color: #fff;
+            top: 0; left: 0; width: 100%;
+            padding: 1.5rem 5%;
+            background: rgba(11, 12, 16, 0.95);
+            backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             z-index: 1000;
-        }
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--secondary-color);
-        }
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        .nav-links a:hover {
-            color: var(--primary-color);
+            border-bottom: 1px solid rgba(102, 252, 241, 0.2);
         }
 
-        /* Phần Hero (Giới thiệu) */
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .nav-links { display: flex; gap: 2.5rem; font-weight: 600; }
+        .nav-links a { position: relative; color: var(--text-main); text-transform: uppercase; font-size: 0.9rem; }
+        .nav-links a::after {
+            content: ''; position: absolute; width: 0; height: 2px;
+            bottom: -5px; left: 0; background: var(--primary);
+            transition: var(--transition);
+        }
+        .nav-links a:hover::after { width: 100%; }
+
+        /* Hero Section */
         .hero {
             height: 100vh;
             display: flex;
@@ -68,167 +72,215 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            background: linear-gradient(135deg, rgba(103, 58, 183, 0.9), rgba(0, 188, 212, 0.9)), url('anh_nen.jpg') no-repeat center center/cover;
-            color: var(--text-light);
+            background: radial-gradient(circle at center, rgba(31, 40, 51, 0.8) 0%, var(--bg-dark) 100%);
             padding: 0 5%;
-            margin-top: 60px; /* Chiều cao header */
-        }
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            font-weight: 800;
-        }
-        .hero p {
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin-bottom: 2rem;
-        }
-        .btn {
-            display: inline-block;
-            padding: 0.8rem 2.5rem;
-            background-color: var(--primary-color);
-            color: var(--text-light);
-            border-radius: 50px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .btn:hover {
-            transform: translateY(-3px);
-            background-color: #0097a7;
+            margin-top: 0;
+            position: relative;
         }
 
-        /* Phần Dự Án & Tải Về (Các Thẻ) */
-        .projects {
-            padding: 5rem 5%;
+        .hero::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/cubes.png');
+            opacity: 0.05; pointer-events: none;
         }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            text-shadow: 0 0 20px rgba(102, 252, 241, 0.5);
+        }
+
+        .hero h1 span { color: var(--primary); }
+        .hero p { font-size: 1.2rem; max-width: 700px; margin-bottom: 2.5rem; color: var(--accent); }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.2) inset;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px rgba(102, 252, 241, 0.6);
+        }
+
+        /* Sections General */
         .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: var(--secondary-color);
+            text-align: center; font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem; margin-bottom: 3rem; color: var(--text-main);
         }
+        .section-title span { color: var(--primary); }
+
+        .tools-section { padding: 6rem 5%; }
+
+        /* Grid & Cards */
         .project-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2.5rem;
         }
+
         .project-card {
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: var(--card-shadow);
+            background-color: var(--card-bg);
+            padding: 2.5rem 2rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             transition: var(--transition);
             text-align: center;
-            border-bottom: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
+
+        .project-card::before {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 3px; background: var(--gradient);
+            transition: var(--transition);
+        }
+
         .project-card:hover {
             transform: translateY(-10px);
-            border-bottom: 4px solid var(--primary-color);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            border-color: rgba(102, 252, 241, 0.3);
         }
+
+        .project-card:hover::before { left: 0; }
+
         .project-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
+            font-size: 3.5rem;
+            color: var(--primary);
             margin-bottom: 1.5rem;
+            text-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
         }
-        .project-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
+
+        .project-card h3 { font-size: 1.6rem; margin-bottom: 1rem; color: var(--text-main); }
+        .project-card p { font-size: 0.95rem; margin-bottom: 2rem; min-height: 50px; }
+
+        /* Tags for card status */
+        .badge {
+            position: absolute; top: 15px; right: -30px;
+            background: var(--primary); color: var(--bg-dark);
+            padding: 5px 40px; font-size: 0.8rem; font-weight: bold;
+            transform: rotate(45deg); text-transform: uppercase;
         }
-        .project-card p {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 1.5rem;
-        }
+        .badge.beta { background: #b400ff; color: white; }
 
         /* Footer */
         footer {
-            padding: 3rem 5%;
-            background-color: #fff;
+            padding: 4rem 5% 2rem;
+            background-color: #07080a;
             text-align: center;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .social-links {
-            margin-top: 1.5rem;
-            font-size: 1.5rem;
-            color: var(--text-dark);
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
+        
+        .social-links { margin-bottom: 2rem; display: flex; justify-content: center; gap: 2rem; }
+        .social-links a {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--card-bg); display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: var(--text-main); border: 1px solid rgba(255,255,255,0.1);
         }
         .social-links a:hover {
-            color: var(--secondary-color);
+            background: var(--primary); color: var(--bg-dark); transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(102, 252, 241, 0.4);
         }
 
-        /* Responsive (Tương thích di động) */
+        /* Responsive */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem; }
-            .nav-links { display: none; } /* Ẩn menu khi ở di động */
+            .nav-links { display: none; }
+            .badge { right: -35px; padding: 5px 35px; }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <header>
-        <div class="logo">Phạm Trí Dũng</div>
+        <div class="logo">JUN PHẠM</div>
         <nav class="nav-links">
-            <a href="#trang-chu">Trang Chủ</a>
-            <a href="#du-an">Dự Án</a>
-            <a href="#lien-he">Liên Hệ</a>
+            <a href="#home">Trang Chủ</a>
+            <a href="#coc-ecosystem">Hệ Sinh Thái CoC</a>
+            <a href="#other-tools">Tiện Ích Khác</a>
+            <a href="#contact">Liên Hệ</a>
         </nav>
     </header>
 
-    <section id="trang-chu" class="hero">
-        <h1>CHÀO MỪNG ĐẾN VỚI TRANG WEB CỦA PHẠM TRÍ DŨNG</h1>
-        <p>Chào bạn, tôi là sinh viên Kỹ thuật, đam mê công nghệ và sáng tạo nội dung. Đây là nơi tôi chia sẻ các dự án, bài viết và tài liệu mà tôi thích.</p>
-        <a href="#du-an" class="btn">Xem Dự Án</a>
+    <section id="home" class="hero">
+        <h1>BUILDING <span>THE FUTURE</span></h1>
+        <p>Chào mừng đến với đại bản doanh của Jun Phạm. Nơi phát triển các hệ thống Auto Game thông minh, phần mềm tối ưu hóa và các giải pháp công nghệ tự động hóa.</p>
+        <a href="#coc-ecosystem" class="btn">Khám Phá Ngay</a>
     </section>
 
-    <section id="du-an" class="projects">
-        <h2 class="section-title">Sản Phẩm & Tải Về</h2>
+    <section id="coc-ecosystem" class="tools-section">
+        <h2 class="section-title">Hệ Sinh Thái <span>Clash of Clans</span></h2>
         
         <div class="project-grid">
             <div class="project-card">
-                <i class="fas fa-code-branch project-icon"></i>
-                <h3>Game Flappy Bird (Python)</h3>
-                <p>Một bản clone nhỏ của Flappy Bird, viết bằng Python/Pygame. Dành cho người mới học.</p>
-                <a href="#" class="btn btn-sm">Tải Về</a>
+                <div class="badge">HOT</div>
+                <i class="fas fa-robot project-icon"></i>
+                <h3>Auto CoC VIP (Farm)</h3>
+                <p>Cày tài nguyên tự động với công nghệ AI nhận diện hình ảnh. Hỗ trợ vuốt map, rải quân thông minh 4 góc, Multi-instance.</p>
+                <a href="https://github.com/phamtridung10112005-stack/AutoCoC_Update/releases/latest/download/Auto_CoC.zip" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem;">Tải Bản ZIP</a>
             </div>
 
             <div class="project-card">
-                <i class="fas fa-file-pdf project-icon"></i>
-                <h3>Tài Liệu Ôn Tập Kỹ Thuật</h3>
-                <p>Tổng hợp các đề thi và tài liệu môn Kỹ thuật lập trình và Cấu trúc dữ liệu.</p>
-                <a href="#" class="btn btn-sm">Tải Về</a>
+                <div class="badge beta">DEV</div>
+                <i class="fas fa-shield-alt project-icon"></i>
+                <h3>Auto Clan Games</h3>
+                <p>Hệ thống tự động nhận và hoàn thành nhiệm vụ Clan Games. Đang trong giai đoạn thử nghiệm kín.</p>
+                <a href="#" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; opacity: 0.5; cursor: not-allowed;">Sắp Ra Mắt</a>
             </div>
 
             <div class="project-card">
-                <i class="fas fa-camera project-icon"></i>
-                <h3>Album Ảnh Chuyến Đi</h3>
-                <p>Một bộ sưu tập những hình ảnh đẹp tôi chụp trong chuyến đi thực tế của mình.</p>
-                <a href="#" class="btn btn-sm">Xem Ngay</a>
-            </div>
-
-            <div class="project-card">
-                <i class="fas fa-book-open project-icon"></i>
-                <h3>Bài Viết: "Kỹ Thuật Và Tôi"</h3>
-                <p>Chia sẻ về hành trình của tôi từ một người mới đến một sinh viên đam mê kỹ thuật.</p>
-                <a href="#" class="btn btn-sm">Đọc Thêm</a>
+                <div class="badge beta">DEV</div>
+                <i class="fas fa-fist-raised project-icon"></i>
+                <h3>Auto Capital Raid</h3>
+                <p>Tự động đánh Clan Capital cuối tuần. Tối ưu hóa sát thương với chiến thuật Graveyard Spam.</p>
+                <a href="#" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; opacity: 0.5; cursor: not-allowed;">Sắp Ra Mắt</a>
             </div>
         </div>
     </section>
 
-    <footer id="lien-he">
-        <p>&copy; 2024 Phạm Trí Dũng. Thiết kế & Phát triển.</p>
+    <section id="other-tools" class="tools-section" style="background-color: #12141a;">
+        <h2 class="section-title">Phần Mềm & <span>Tiện Ích</span></h2>
+        
+        <div class="project-grid">
+            <div class="project-card">
+                <i class="fas fa-tachometer-alt project-icon"></i>
+                <h3>PC Optimizer</h3>
+                <p>Tool dọn dẹp rác hệ thống, tối ưu hóa RAM và CPU để treo nhiều cửa sổ giả lập mượt mà hơn.</p>
+                <a href="#" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; opacity: 0.5;">Đang Phát Triển</a>
+            </div>
+
+            <div class="project-card">
+                <i class="fas fa-window-restore project-icon"></i>
+                <h3>LDPlayer Manager</h3>
+                <p>Quản lý tập trung hàng loạt giả lập. Tự động đồng bộ cấu hình, đổi IP và Mac Address nhanh chóng.</p>
+                <a href="#" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; opacity: 0.5;">Đang Phát Triển</a>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
         <div class="social-links">
-            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
-            <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
-            <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
+            <a href="https://github.com/phamtridung10112005-stack" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://www.facebook.com/share/185fk3uijB/" target="_blank"><i class="fab fa-facebook-f"></i></a>
             <a href="mailto:phamtridung10112005@email.com"><i class="fas fa-envelope"></i></a>
         </div>
+        <p>&copy; 2026 <strong>Jun Phạm</strong>. All Rights Reserved.</p>
+        <p style="font-size: 0.8rem; margin-top: 10px; color: #555;">Designed for the Auto Gaming Community.</p>
     </footer>
 
 </body>
