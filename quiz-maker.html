@@ -18,68 +18,98 @@
     
     <style>
         :root {
-            --bg-base: #050505; --bg-card: rgba(15, 15, 15, 0.98);
+            --bg-base: #030303; --bg-card: rgba(10, 10, 10, 0.98);
             --primary: #00f0ff; --secondary: #7000ff; --text-main: #ffffff;
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-muted: #888888;
+            --glass-border: rgba(255, 255, 255, 0.08);
             --gradient-text: linear-gradient(90deg, var(--primary), var(--secondary));
             --neon-shadow: 0 0 35px rgba(0, 240, 255, 0.3);
+            --card-shadow: 0 25px 80px rgba(0,0,0,0.9);
+            --border-radius: 20px;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; outline: none !important; }
         h1, h2, h3, h4, h5, h6, .logo { font-family: 'Space Grotesk', sans-serif !important; }
-        button, input, textarea { font-family: 'Inter', sans-serif; }
         
-        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
-        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.5; pointer-events: none; }
+        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; line-height: 1.6; }
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.4; pointer-events: none; }
         
-        header { position: fixed; top: 0; width: 100%; padding: 15px 5%; background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(12px); z-index: 1000; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: center; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 2px; }
+        header { position: fixed; top: 0; width: 100%; padding: 15px 5%; background: rgba(5, 5, 5, 0.9); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 1000; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .logo { font-size: 1.6rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 2.5px; }
 
-        .main-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 80px 20px 40px; position: relative; z-index: 1; }
-        .glass-card { background: var(--bg-card); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 45px; width: 100%; max-width: 1150px; position: relative; display: none; box-shadow: 0 25px 80px rgba(0,0,0,0.9); }
-        .glass-card.active { display: block; }
-        .glass-card::after { content: ''; position: absolute; inset: -1px; border-radius: 24px; padding: 1.5px; background: var(--gradient-text); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.35; pointer-events: none; }
-
-        .upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.3s; background: rgba(255, 255, 255, 0.02); margin-bottom: 25px; width: 100%; z-index: 10; position: relative;}
-        .upload-zone:hover { border-color: var(--primary); background: rgba(0, 240, 255, 0.05); box-shadow: var(--neon-shadow); }
-        .upload-zone i { font-size: 3rem; color: var(--secondary); margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(112, 0, 255, 0.4)); }
+        .main-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 100px 15px 50px; position: relative; z-index: 1; }
         
-        .btn-cyber { padding: 15px 30px; background: var(--primary); color: #000; border: none; border-radius: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: var(--neon-shadow); transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; font-size: 1rem; letter-spacing: 1px; z-index: 10; position: relative;}
-        .btn-cyber:hover { transform: translateY(-3px); box-shadow: 0 0 45px rgba(0, 240, 255, 0.7); }
+        .glass-card { background: var(--bg-card); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 45px 35px; width: 100%; max-width: 1000px; position: relative; display: none; box-shadow: var(--card-shadow); }
+        .glass-card.active { display: block; animation: fadeIn 0.4s ease-out; }
+        .glass-card::after { content: ''; position: absolute; inset: -1px; border-radius: 24px; padding: 1.5px; background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(112, 0, 255, 0.4)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.4; pointer-events: none; }
 
-        .edit-row { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 18px; padding: 25px; margin-bottom: 30px; position: relative; width: 100%; z-index: 10;}
-        .rendered-q { font-size: 1.15rem; color: #fff; line-height: 1.5; cursor: pointer; padding: 10px; border-radius: 8px; transition: 0.3s; margin-bottom: 15px; }
+        .upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.3s; background: rgba(255, 255, 255, 0.01); margin-bottom: 25px; width: 100%; z-index: 10; position: relative;}
+        .upload-zone:hover { border-color: var(--primary); background: rgba(0, 240, 255, 0.05); box-shadow: 0 0 20px rgba(0, 240, 255, 0.15); }
+        .upload-zone i { font-size: 3rem; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(112, 0, 255, 0.3)); }
+        
+        .btn-cyber { padding: 15px 30px; background: linear-gradient(135deg, #00f0ff 0%, #00aaff 100%); color: #000; border: none; border-radius: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; font-size: 1rem; letter-spacing: 1px; z-index: 10; position: relative;}
+        .btn-cyber:hover { transform: translateY(-3px); box-shadow: 0 0 45px rgba(0, 240, 255, 0.6); }
+
+        .edit-row { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 18px; padding: 25px; margin-bottom: 30px; position: relative; width: 100%; z-index: 10; transition: 0.3s; }
+        .edit-row:hover { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.03); }
+        
+        .rendered-q { font-size: 1.2rem; color: #fff; line-height: 1.5; cursor: pointer; padding: 10px; border-radius: 8px; transition: 0.3s; margin-bottom: 15px; font-weight: 600;}
         .rendered-q:hover { background: rgba(0,240,255,0.05); outline: 1px dashed var(--primary); }
         
-        .raw-editor { display: none; width: 100%; height: 100px; background: #000; color: #fff; border: 1px solid var(--primary); border-radius: 8px; padding: 15px; margin-bottom: 15px; font-family: monospace; resize: vertical; }
+        .raw-editor { display: none; width: 100%; height: 100px; background: #000; color: #fff; border: 1px solid var(--primary); border-radius: 8px; padding: 15px; margin-bottom: 15px; font-family: monospace; resize: vertical; font-size: 0.95rem; }
 
-        .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
-        .opt-item-wrapper { display: flex; align-items: center; gap: 10px; background: #000; padding: 10px 15px; border-radius: 10px; border: 1px solid #222; min-height: 48px; }
-        .opt-item-wrapper b { color: var(--primary); font-weight: 800; }
-        .rendered-opt { flex: 1; cursor: pointer; padding: 5px; border-radius: 4px; transition: 0.2s; font-size: 1.05rem;}
-        .rendered-opt:hover { background: rgba(0,240,255,0.1); }
+        .edit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; width: 100%; }
+        .opt-item-wrapper { display: flex; align-items: center; gap: 10px; background: #000; padding: 12px 18px; border-radius: 10px; border: 1px solid #222; min-height: 48px; }
+        .opt-item-wrapper b { color: var(--primary); font-weight: 800; font-size: 1.1rem; }
+        .rendered-opt { flex: 1; cursor: pointer; padding: 5px; border-radius: 4px; transition: 0.2s; font-size: 1.05rem; color: #ccc;}
+        .rendered-opt:hover { background: rgba(0,240,255,0.08); color: #fff; }
         .raw-opt-editor { display: none; flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 1rem; font-family: monospace; }
 
-        .ans-selector { display: flex; gap: 12px; margin-top: 20px; align-items: center; z-index: 10; position: relative; flex-wrap: wrap;}
-        .letter-circle { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #444; background: transparent; color: #fff; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
-        .letter-circle.active { background: var(--primary); color: #000; box-shadow: var(--neon-shadow); border-color: var(--primary); }
+        .ans-selector { display: flex; gap: 12px; margin-top: 25px; align-items: center; z-index: 10; position: relative; flex-wrap: wrap;}
+        .letter-circle { width: 42px; height: 42px; border-radius: 50%; border: 1px solid #444; background: transparent; color: #fff; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;}
+        .letter-circle.active { background: var(--primary); color: #000; box-shadow: 0 0 20px rgba(0, 240, 255, 0.5); border-color: var(--primary); }
 
-        .play-card { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); padding: 30px; border-radius: 20px; margin-bottom: 25px; width: 100%; z-index: 10; position: relative;}
-        .choice-row { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 18px; border-radius: 12px; margin: 12px 0; cursor: pointer; font-size: 1.1rem; transition: 0.2s; z-index: 10; position: relative;}
-        .choice-row.selected { border-color: var(--primary); background: rgba(0, 240, 255, 0.1); box-shadow: var(--neon-shadow); color: var(--primary); }
-        .choice-row.correct { border-color: #00e676; background: rgba(0, 230, 118, 0.1); color: #00e676; }
-        .choice-row.wrong { border-color: #ff4c4c; background: rgba(255, 76, 76, 0.1); color: #ff4c4c; }
+        /* PLAY SCENE UI ENHANCEMENTS */
+        .play-card { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); padding: 35px; border-radius: 20px; margin-bottom: 30px; width: 100%; z-index: 10; position: relative;}
+        .play-card .q-text { font-size: 1.25rem; margin-bottom: 20px; font-weight: 700; line-height: 1.5; color: #fff; }
+        .choice-row { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 20px; border-radius: 12px; margin: 15px 0; cursor: pointer; font-size: 1.1rem; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1); z-index: 10; position: relative;}
+        .choice-row:hover { transform: translateX(5px); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.02); }
+        .choice-row.selected { border-color: var(--primary); background: rgba(0, 240, 255, 0.1); box-shadow: 0 0 25px rgba(0, 240, 255, 0.3); color: var(--primary); font-weight: 600; }
+        .choice-row.correct { border-color: #00e676; background: rgba(0, 230, 118, 0.1); color: #00e676; box-shadow: 0 0 25px rgba(0, 230, 118, 0.3); font-weight: 600;}
+        .choice-row.wrong { border-color: #ff4c4c; background: rgba(255, 76, 76, 0.1); color: #ff4c4c; box-shadow: 0 0 25px rgba(255, 76, 76, 0.3); font-weight: 600;}
 
-        .summary-box { text-align: center; padding: 40px; background: rgba(0,240,255,0.1); border-radius: 20px; border: 1px solid var(--primary); margin-bottom: 30px; width: 100%; z-index: 10; position: relative;}
-        .thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid var(--primary); margin: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .summary-box { text-align: center; padding: 45px; background: rgba(0,240,255,0.05); border-radius: 20px; border: 2px solid var(--primary); margin-bottom: 35px; width: 100%; z-index: 10; position: relative; box-shadow: var(--neon-shadow); }
+        .summary-box h2 { font-size: 2.2rem; color: var(--primary); margin-bottom: 10px; }
+        .summary-box p { color: #ccc; font-size: 1.1rem; }
         
-        textarea#text-input { width: 100%; height: 100px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--glass-border); border-radius: 12px; padding: 15px; resize: none; margin-bottom: 25px; transition: 0.3s; font-size: 0.95rem; z-index: 10; position: relative;}
-        textarea#text-input:focus { outline: none; border-color: var(--primary); box-shadow: var(--neon-shadow); }
-        #batch-status { text-align: center; color: var(--primary); font-weight: 800; margin-bottom: 15px; font-size: 1.1rem; }
+        .thumb { width: 65px; height: 65px; object-fit: cover; border-radius: 10px; border: 2px solid var(--primary); margin: 6px; box-shadow: 0 0 15px rgba(0,0,0,0.6); transition: 0.3s; }
+        .thumb:hover { transform: scale(1.1); }
+        
+        textarea#text-input { width: 100%; height: 110px; background: rgba(0,0,0,0.4); color: #fff; border: 1px solid var(--glass-border); border-radius: 12px; padding: 18px; resize: none; margin-bottom: 25px; transition: 0.3s; font-size: 0.95rem; z-index: 10; position: relative;}
+        textarea#text-input:focus { outline: none !important; border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 240, 255, 0.1); }
+        #batch-status { text-align: center; color: var(--primary); font-weight: 800; margin-bottom: 20px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; animation: pulse 1.5s infinite; }
+
+        /* NÚT THOÁT - GIAO DIỆN MỚI */
+        .btn-exit { margin-top: 25px; background: transparent; border: 1px solid #444; color: #aaa; transition: 0.3s; width: auto; font-size: 0.9rem; padding: 12px 25px;}
+        .btn-exit:hover { border-color: #666; color: #fff; background: rgba(255,255,255,0.03); transform: scale(0.98); }
+
+        /* SCROLLBAR CUSTOMIZATION */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
 
         @media (max-width: 768px) {
-            .glass-card { padding: 25px; border-radius: 16px; }
+            .logo { font-size: 1.3rem; }
+            .glass-card { padding: 30px 20px; border-radius: 16px; }
+            .main-wrapper { padding-top: 90px; }
+            .rendered-q, .play-card .q-text { font-size: 1.1rem; }
             .edit-grid { grid-template-columns: 1fr; }
-            #scr-modes > div { grid-template-columns: 1fr; }
+            #scr-modes > div { grid-template-columns: 1fr; gap: 20px;}
+            .btn-cyber { padding: 12px 20px; font-size: 0.9rem;}
         }
     </style>
 </head>
@@ -93,46 +123,64 @@
 
     <div class="main-wrapper">
         <div id="scr-input" class="glass-card active">
-            <h2 style="color:var(--primary); margin-bottom:20px; text-align: center;"><i class="fas fa-layer-group"></i> TRÍCH XUẤT ĐỀ THI THÔNG MINH</h2>
+            <h2 style="color:var(--primary); margin-bottom:25px; text-align: center;"><i class="fas fa-magic"></i> GIẢI MÃ ĐỀ THI BẰNG AI</h2>
             
-            <button id="btn-load-local" class="btn-cyber" style="margin-bottom:20px; background:transparent; border:1px solid var(--primary); color:var(--text-main); display:none;" onclick="loadSavedSession()">
-                <i class="fas fa-history"></i> TIẾP TỤC ĐỀ THI ĐANG LƯU TRÊN MÁY
+            <button id="btn-load-local" class="btn-cyber" style="margin-bottom:25px; background:rgba(0,0,0,0.5); border:1px solid rgba(0, 240, 255, 0.4); color:var(--text-main); display:none;" onclick="loadSavedSession()">
+                <i class="fas fa-history"></i> TIẾP TỤC ĐỀ ĐANG LÀM DỞ
             </button>
 
             <div id="batch-status" style="display:none">ĐANG ĐỌC FILE...</div>
+            
             <label class="upload-zone" for="file-upload">
-                <i class="fas fa-file-upload"></i>
-                <p style="font-weight:800; font-size:1.1rem; margin-bottom: 5px;">TẢI ẢNH, PDF HOẶC WORD VÀO ĐÂY</p>
-                <p style="color: var(--text-muted); font-size: 0.85rem;">(Hỗ trợ: JPG, PNG, PDF, DOCX)</p>
+                <i class="fas fa-file-export"></i>
+                <p style="font-weight:800; font-size:1.15rem; margin-bottom: 7px;">TẢI ĐỀ THI CỦA BẠN</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">Hỗ trợ: JPG, PNG, PDF, DOCX</p>
                 <input type="file" id="file-upload" multiple accept="image/*,.pdf,.docx" style="display:none" onchange="handleFiles(event)">
             </label>
-            <div id="thumb-container" style="display:flex; flex-wrap:wrap; justify-content:center; margin-bottom:20px; z-index: 10; position: relative;"></div>
-            <textarea id="text-input" placeholder="Dán văn bản có sẵn tại đây..."></textarea>
-            <button class="btn-cyber" type="button" onclick="startSmartBatch()"><i class="fas fa-brain"></i> BẮT ĐẦU GIẢI MÃ TOÀN BỘ</button>
+            
+            <div id="thumb-container" style="display:flex; flex-wrap:wrap; justify-content:center; margin-bottom:25px; z-index: 10; position: relative;"></div>
+            
+            <textarea id="text-input" placeholder="Dán văn bản có sẵn tại đây (nếu có)..."></textarea>
+            
+            <button class="btn-cyber" type="button" onclick="startSmartBatch()"><i class="fas fa-brain"></i> BẮT ĐẦU BÓC TÁCH ĐỀ THI</button>
         </div>
 
         <div id="scr-review" class="glass-card">
-            <h2 style="color:var(--primary); margin-bottom:20px;"><i class="fas fa-check-double"></i> KIỂM ĐỊNH CHẤT LƯỢNG NGUỒN</h2>
-            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px; z-index: 10; position: relative;">Bấm trực tiếp vào câu hỏi hoặc đáp án để sửa LaTeX nếu AI nhận diện thiếu.</p>
-            <div id="editor-container" style="max-height: 550px; overflow-y: auto; padding-right: 15px; margin-bottom: 30px; width: 100%; z-index: 10; position: relative;"></div>
-            <button class="btn-cyber" type="button" onclick="confirmAndProceed()"><i class="fas fa-check-circle"></i> XÁC NHẬN VÀ CHỐT ĐỀ</button>
+            <h2 style="color:var(--primary); margin-bottom:20px; text-align: center;"><i class="fas fa-edit"></i> SOÁT LỖI DỮ LIỆU NGUỒN</h2>
+            <p style="color:var(--text-muted); font-size:0.9rem; text-align: center; margin-bottom:30px; z-index: 10; position: relative; max-width: 600px; margin-left: auto; margin-right: auto;">Bấm trực tiếp vào văn bản để sửa lỗi nếu AI nhận diện chưa chuẩn (đặc biệt là công thức LaTeX).</p>
+            
+            <div id="editor-container" style="max-height: 520px; overflow-y: auto; padding-right: 15px; margin-bottom: 35px; width: 100%; z-index: 10; position: relative;"></div>
+            
+            <button class="btn-cyber" type="button" onclick="confirmAndProceed()"><i class="fas fa-vial"></i> XÁC NHẬN VÀ CHUYỂN SANG ÔN LUYỆN</button>
         </div>
 
         <div id="scr-modes" class="glass-card">
-            <h2 style="color:var(--primary); margin-bottom:35px; text-align:center;">HÀNH TRÌNH BẮT ĐẦU</h2>
+            <h2 style="color:var(--primary); margin-bottom:40px; text-align:center;"><i class="fas fa-graduation-cap"></i> SẴN SÀNG CHINH PHỤC</h2>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; width: 100%; z-index: 10; position: relative;">
-                <button class="btn-cyber" type="button" style="height:150px; flex-direction:column;" onclick="startLearn()"><i class="fas fa-book-open fa-2x"></i><br>Học thuộc</button>
-                <button class="btn-cyber" type="button" style="height:150px; flex-direction:column; background:var(--secondary); color:#fff;" onclick="startTest()"><i class="fas fa-graduation-cap fa-2x"></i><br>Thi thử (Shuffle)</button>
+                <button class="btn-cyber" type="button" style="height:160px; flex-direction:column; background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.05) 100%); color: #fff; border: 1px solid rgba(255,255,255,0.1);" onclick="startLearn()">
+                    <i class="fas fa-book-reader fa-2x" style="color: var(--primary);"></i><br>ÔN TẬP<br><span style="font-size: 0.8rem; text-transform: none; color: #aaa;">(Xem ngay đáp án & giải thích)</span>
+                </button>
+                <button class="btn-cyber" type="button" style="height:160px; flex-direction:column; background: linear-gradient(135deg, #7000ff 0%, #a200ff 100%); color:#fff; box-shadow: 0 0 15px rgba(112,0,255,0.3);" onclick="startTest()">
+                    <i class="fas fa-stopwatch fa-2x"></i><br>THI THỬ<br><span style="font-size: 0.8rem; text-transform: none; color: #e0d0ff;">(Đảo đề & tính điểm)</span>
+                </button>
             </div>
-            <button class="btn-cyber" type="button" style="margin-top:30px; background:transparent; border:1px solid #333; color:#fff;" onclick="toScr('scr-input')">QUAY LẠI TRANG CHỦ</button>
+            <div style="text-align: center;">
+                <button class="btn-cyber btn-exit" type="button" onclick="confirmToScr('scr-input')"><i class="fas fa-arrow-left"></i> QUAY LẠI TRANG TẢI ĐỀ</button>
+            </div>
         </div>
 
         <div id="scr-play" class="glass-card">
-            <h2 id="play-title" style="color:var(--primary); margin-bottom:25px;"></h2>
+            <h2 id="play-title" style="color:var(--primary); margin-bottom:30px; text-align: center;"></h2>
+            
             <div id="summary-box" class="summary-box" style="display:none"></div>
-            <div id="play-container" style="max-height: 550px; overflow-y: auto; padding-right: 15px; width: 100%; z-index: 10; position: relative;"></div>
-            <button id="btn-submit" class="btn-cyber" type="button" style="display:none; margin-top:30px;" onclick="showResult()">NỘP BÀI THI</button>
-            <button class="btn-cyber" type="button" style="margin-top:20px; background:transparent; border:1px solid #444; color:#fff;" onclick="toScr('scr-modes')">THOÁT RA CHẾ ĐỘ CHỌN</button>
+            
+            <div id="play-container" style="max-height: 520px; overflow-y: auto; padding-right: 15px; width: 100%; z-index: 10; position: relative;"></div>
+            
+            <button id="btn-submit" class="btn-cyber" type="button" style="display:none; margin-top:35px;" onclick="showResult()"><i class="fas fa-paper-plane"></i> NỘP BÀI THI</button>
+            
+            <div style="text-align: center;">
+                <button class="btn-cyber btn-exit" type="button" onclick="safeQuitExam()"><i class="fas fa-undo"></i> THOÁT RA CHẾ ĐỘ CHỌN</button>
+            </div>
         </div>
     </div>
 
@@ -204,7 +252,7 @@
             } catch(e) { alert("Lỗi đọc file Word."); }
         }
 
-        // 👉 FETCH DATA: CHỈ GỌI DUY NHẤT CON 3.1 FLASH LITE
+        // 👉 FETCH DATA: GỌI QUA MÁY CHỦ BẢO MẬT & CHỈ DÙNG DUY NHẤT CON 3.1 FLASH LITE
         async function fetchAndParse(parts) {
             try {
                 const res = await fetch(WORKER_URL, {
@@ -220,9 +268,28 @@
                 });
                 
                 const d = await res.json();
-                if (!res.ok) throw new Error(d.error ? d.error.message : "HTTP " + res.status);
                 
-                let textResult = d.candidates[0].content.parts[0].text;
+                // 👉 LƯỚI AN TOÀN LỚP 1: KIỂM TRA PHẢN HỒI HTTP
+                if (!res.ok) {
+                    throw new Error(d.error ? d.error.message : "Lỗi hệ thống hoặc Server gặp sự cố (HTTP " + res.status + ")");
+                }
+                
+                // 👉 LƯỚI AN TOÀN LỚP 2: KIỂM TRA CẤU TRÚC DỮ LIỆU Google AI (Chống lỗi undefined 'parts' - FIX LỖI User)
+                let textResult = "";
+                if (d.candidates && d.candidates.length > 0 && 
+                    d.candidates[0].content && d.candidates[0].content.parts && 
+                    d.candidates[0].content.parts.length > 0) {
+                    textResult = d.candidates[0].content.parts[0].text;
+                } else {
+                    // Nếu Google trả về dữ liệu rỗng (ví dụ: bị Safety filter chặn)
+                    if (d.promptFeedback && d.promptFeedback.blockReason) {
+                         throw new Error(`AI từ chối xử lý nội dung này vì lý do bảo mật: ${d.promptFeedback.blockReason}. Vui lòng thử lại với ảnh khác.`);
+                    }
+                    console.error("Dữ liệu Google trả về không đúng định dạng:", d);
+                    throw new Error("Dữ liệu nhận được từ AI bị rỗng hoặc không đúng định dạng. Có thể ảnh không rõ nét hoặc nội dung bị chặn.");
+                }
+
+                // XỬ LÝ CHUỖI JSON NHẬN ĐƯỢC
                 const startIndex = textResult.indexOf('['); const endIndex = textResult.lastIndexOf(']');
                 if(startIndex !== -1 && endIndex !== -1) textResult = textResult.substring(startIndex, endIndex + 1);
                 else textResult = textResult.replace(/```json/g,'').replace(/```/g,'').trim();
@@ -244,20 +311,24 @@
 
             try {
                 if (uploadImgs.length === 0) {
-                    status.innerText = `ĐANG PHÂN TÍCH VĂN BẢN...`;
+                    status.innerText = `🔄 AI ĐANG PHÂN TÍCH VĂN BẢN...`;
                     await fetchAndParse([{ text: `${prompt}\n\n${extra}` }]);
                 } else {
                     for (let i = 0; i < uploadImgs.length; i += batchSize) {
                         const chunk = uploadImgs.slice(i, i + batchSize);
-                        status.innerText = `ĐANG GIẢI MÃ NHÓM ${Math.floor(i/batchSize)+1}/${totalBatches}...`;
+                        status.innerText = `🔍 AI ĐANG GIẢI MÃ NHÓM ${Math.floor(i/batchSize)+1}/${totalBatches}...`;
                         const parts = [{ text: prompt + (i===0 ? "\nText bổ sung: " + extra : "") }];
                         chunk.forEach(m => parts.push({ inlineData: m }));
                         
-                        await fetchAndParse(parts);
+                        // LƯỚI AN TOÀN LỚP 3: CATCH LỖI TỪNG BATCH đỂ KHÔNG SẬP TOÀN BỘ
+                        await fetchAndParse(parts).catch(e => {
+                            console.error(`Bị lỗi ở nhóm ${Math.floor(i/batchSize)+1}: ${e.message}`);
+                            alert(`Bị lỗi khi xử lý một số hình ảnh. AI sẽ bỏ qua và tiếp tục làm việc.`);
+                        });
 
-                        // 👉 THUẬT TOÁN LÀM MÁT AI: NGHỈ 4 GIÂY ĐỂ TRÁNH QUÁ TẢI 15 RPM
+                        // 👉 THUẬT TOÁN LÀM MÁT AI (Nghỉ 4 giây chống lỗi RPM 15 của Lite)
                         if (i + batchSize < uploadImgs.length) {
-                            status.innerText = `ĐANG LÀM MÁT AI ĐỂ CHỐNG NGHẼN (Đợi 4s)...`;
+                            status.innerText = `❄️ ĐANG LÀM MÁT AI đỂ TRÁNH NGHẼN (Đợi 4s)...`;
                             await sleep(4000); 
                         }
                     }
@@ -265,7 +336,7 @@
                 status.style.display = 'none';
                 if(masterQuiz.length > 0) { saveLocal(); renderReviewUI(); toScr('scr-review'); document.getElementById('btn-load-local').style.display = 'flex'; }
             } catch (error) { 
-                alert("LỖI MÁY CHỦ: " + error.message);
+                alert("🆘 LỖI NGUYÊN TRẠNG: " + error.message + "\n\nNếu lỗi này lặp lại, vui lòng chụp màn hình báo cho Ad.");
                 status.style.display = 'none'; 
             }
         }
@@ -280,7 +351,7 @@
                         <input class="raw-opt-editor" id="opt-raw-${i}-${oi}" value="${String(o).replace(/"/g, '&quot;')}" onblur="finishOptEdit(${i}, ${oi})">
                     </div>`).join('');
                 div.innerHTML = `
-                    <div class="rendered-q" id="q-view-${i}" onclick="toggleEdit(${i})"><b>Câu ${i+1}:</b> ${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                    <div class="rendered-q" id="q-view-${i}" onclick="toggleEdit(${i})">Câu ${i+1}: ${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
                     <textarea class="raw-editor" id="q-raw-${i}" onblur="finishEdit(${i})">${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
                     <div class="edit-grid">${optionsHTML}</div>
                     <div class="ans-selector"><span style="font-weight: 600; color: #aaa;">ĐÁP ÁN ĐÚNG:</span>
@@ -292,7 +363,7 @@
         }
 
         function toggleEdit(idx) { document.getElementById(`q-view-${idx}`).style.display = 'none'; const raw = document.getElementById(`q-raw-${idx}`); raw.style.display = 'block'; raw.focus(); }
-        function finishEdit(idx) { const rawVal = document.getElementById(`q-raw-${idx}`).value; masterQuiz[idx].question = rawVal; const view = document.getElementById(`q-view-${idx}`); view.innerHTML = `<b>Câu ${idx+1}:</b> ${String(rawVal).replace(/</g, '&lt;').replace(/>/g, '&gt;')}`; view.style.display = 'block'; document.getElementById(`q-raw-${idx}`).style.display = 'none'; renderMathSafe(`q-view-${idx}`); saveLocal(); }
+        function finishEdit(idx) { const rawVal = document.getElementById(`q-raw-${idx}`).value; masterQuiz[idx].question = rawVal; const view = document.getElementById(`q-view-${idx}`); view.innerHTML = `Câu ${idx+1}: ${String(rawVal).replace(/</g, '&lt;').replace(/>/g, '&gt;')}`; view.style.display = 'block'; document.getElementById(`q-raw-${idx}`).style.display = 'none'; renderMathSafe(`q-view-${idx}`); saveLocal(); }
         function toggleOptEdit(qIdx, oIdx) { document.getElementById(`opt-view-${qIdx}-${oIdx}`).style.display = 'none'; const raw = document.getElementById(`opt-raw-${qIdx}-${oIdx}`); raw.style.display = 'block'; raw.focus(); }
         function finishOptEdit(qIdx, oIdx) { const rawVal = document.getElementById(`opt-raw-${qIdx}-${oIdx}`).value; masterQuiz[qIdx].options[oIdx] = rawVal; const view = document.getElementById(`opt-view-${qIdx}-${oIdx}`); view.innerHTML = String(rawVal).replace(/</g, '&lt;').replace(/>/g, '&gt;'); view.style.display = 'block'; document.getElementById(`opt-raw-${qIdx}-${oIdx}`).style.display = 'none'; renderMathSafe(`opt-view-${qIdx}-${oIdx}`); saveLocal(); }
         function setCorrectIdx(qIdx, oIdx, btn) { masterQuiz[qIdx].correctIndex = oIdx; btn.parentNode.querySelectorAll('.letter-circle').forEach(b => b.classList.remove('active')); btn.classList.add('active'); saveLocal(); }
@@ -301,9 +372,9 @@
 
         function startLearn() {
             toScr('scr-play'); document.getElementById('play-title').innerText = "HỌC THUỘC"; const box = document.getElementById('play-container'); box.innerHTML = '';
-            masterQuiz.forEach((q, i) => { box.innerHTML += `<div class="play-card"><p style="font-size: 1.15rem; margin-bottom: 15px;"><b>${i+1}. ${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</b></p>
+            masterQuiz.forEach((q, i) => { box.innerHTML += `<div class="play-card"><p class="q-text">${i+1}. ${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
                 ${q.options.map((o,oi)=>`<div class="choice-row ${oi==q.correctIndex?'correct':''}"><b>${String.fromCharCode(65+oi)}.</b> <span class="math-opt">${String(o).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>`).join('')}
-                <p style="color:var(--primary); font-size:0.95rem; margin-top:15px; border-left:3px solid var(--primary); padding-left:15px;"><i>💡 ${String(q.explanation).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</i></p></div>`; });
+                <p style="color:var(--primary); font-size:1rem; margin-top:18px; border-left:3px solid var(--primary); padding-left:15px;"><i>💡 ${String(q.explanation).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</i></p></div>`; });
             try { renderMathInElement(box, mathOptions); } catch(e) {}
         }
 
@@ -312,7 +383,7 @@
             const box = document.getElementById('play-container'); box.innerHTML = ''; userAns = {}; activeExam = JSON.parse(JSON.stringify(masterQuiz)).sort(() => Math.random() - 0.5);
             activeExam.forEach((q, i) => {
                 let realCorrect = q.options[q.correctIndex]; q.options.sort(() => Math.random() - 0.5); q.newIdx = q.options.indexOf(realCorrect);
-                const d = document.createElement('div'); d.className = 'play-card'; d.innerHTML = `<p style="font-size: 1.15rem; margin-bottom: 15px;"><b>${i+1}. ${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</b></p>`;
+                const d = document.createElement('div'); d.className = 'play-card'; d.innerHTML = `<p class="q-text">${i+1}. ${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`;
                 q.options.forEach((o, oi) => { const r = document.createElement('div'); r.className = `choice-row user-pick-${i}`; r.innerHTML = `<b>${String.fromCharCode(65+oi)}.</b> <span class="math-opt">${String(o).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
                     r.onclick = () => { userAns[i] = oi; document.querySelectorAll(`.user-pick-${i}`).forEach(x => x.classList.remove('selected')); r.classList.add('selected'); }; d.appendChild(r); });
                 box.appendChild(d);
@@ -329,11 +400,31 @@
                 if (rs[q.newIdx]) rs[q.newIdx].classList.add('correct');
             });
             const board = document.getElementById('summary-box'); board.style.display = 'block';
-            board.innerHTML = `<h2 style="color:var(--primary); font-size:2rem; margin-bottom: 10px;">🎯 TỔNG ĐIỂM: ${s} / ${activeExam.length}</h2><p style="color: #ccc;">Xem lại chi tiết bài làm bên dưới.</p>`;
+            board.innerHTML = `<h2>🎯 TỔNG ĐIỂM: ${s} / ${activeExam.length}</h2><p>Xem lại chi tiết bài làm bên dưới.</p>`;
             document.getElementById('btn-submit').style.display = 'none'; document.getElementById('play-container').scrollTo(0,0);
         }
 
         function toScr(id) { document.querySelectorAll('.glass-card').forEach(s => s.classList.remove('active')); const target = document.getElementById(id); if (target) target.classList.add('active'); const summaryBox = document.getElementById('summary-box'); if (summaryBox) summaryBox.style.display = 'none'; const btnSubmit = document.getElementById('btn-submit'); if (btnSubmit) btnSubmit.style.display = 'none'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        
+        // 👉 CẢNH BÁO KHI MUỐN QUAY LẠI TRANG CHỦ (FIX LỖI User - UX)
+        function confirmToScr(id) {
+            if(confirm("🚧 CẢNH BÁO: Dữ liệu đề thi hiện tại có thể bị mất nếu bạn quay lại. Chắc chắn muốn quay lại?")) {
+                toScr(id);
+            }
+        }
+        // 👉 NÚT THOÁT CÓ CẢNH BÁO TRONG CHẾ ĐỘ THI (FIX LỖI User - UX)
+        function safeQuitExam() {
+            // Chỉ cảnh báo nếu đang trong chế độ thi dở (chưa nộp bài)
+            const isTesting = document.getElementById('btn-submit').style.display === 'flex';
+            if(isTesting && Object.keys(userAns).length > 0) {
+                 if(confirm("🚧 CẢNH BÁO: Bài thi đang diễn ra! Nếu thoát, mọi đáp án bạn chọn sẽ bị mất. Bạn có chắc chắn muốn thoát không?")) {
+                    activeExam = []; toScr('scr-modes');
+                 }
+            } else {
+                 toScr('scr-modes'); // Thoát luôn nếu chưa làm câu nào hoặc đang ở chế độ Học thuộc
+            }
+        }
+
         function confirmAndProceed() { try { toScr('scr-modes'); } catch(e) { alert("Lỗi chuyển trang: " + e); } }
     </script>
 </body>
