@@ -39,6 +39,7 @@
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
+        /* HEADER */
         header {
             position: fixed;
             top: 0; left: 0; width: 100%;
@@ -82,6 +83,7 @@
         }
         .nav-links a:hover::after { width: 100%; }
 
+        /* HERO SECTION */
         .hero {
             position: relative;
             min-height: 100vh;
@@ -158,7 +160,6 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            cursor: pointer;
         }
 
         .btn-primary {
@@ -184,6 +185,7 @@
             transform: translateY(-2px);
         }
 
+        /* SECTIONS */
         section { padding: 100px 5%; position: relative; }
         
         .section-header {
@@ -198,6 +200,7 @@
         .section-header h2 span { color: var(--primary); }
         .section-header p { color: var(--text-muted); max-width: 600px; margin: 0 auto; }
 
+        /* GRID SYSTEM */
         .grid-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -253,6 +256,7 @@
             background: rgba(0, 240, 255, 0.2); border-color: var(--primary); color: var(--primary);
         }
 
+        /* FEATURES HIGHLIGHT */
         .features-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px; max-width: 1200px; margin: 0 auto;
@@ -266,24 +270,7 @@
         .feature-item h4 { margin-bottom: 5px; font-size: 1.1rem; }
         .feature-item p { font-size: 0.9rem; color: var(--text-muted); }
 
-        .iframe-container {
-            width: 100%;
-            max-width: 1200px;
-            height: 85vh;
-            margin: 0 auto;
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            overflow: hidden;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
-            background: var(--bg-card);
-        }
-        
-        .iframe-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
+        /* FOOTER */
         footer {
             background: #020202; padding: 60px 5% 30px;
             border-top: 1px solid var(--glass-border); text-align: center;
@@ -301,6 +288,7 @@
         .copyright { color: var(--text-muted); font-size: 0.9rem; }
         .copyright span { color: var(--primary); font-weight: 600; font-family: 'Space Grotesk', sans-serif;}
 
+        /* ANIMATIONS */
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
@@ -311,7 +299,6 @@
             .hero h1 { font-size: 3rem; }
             .nav-links { display: none; }
             .btn-group { flex-direction: column; }
-            .iframe-container { height: 75vh; }
         }
     </style>
 </head>
@@ -322,7 +309,6 @@
         <nav class="nav-links">
             <a href="#home">Trang Chủ</a>
             <a href="#products">Sản Phẩm</a>
-            <a href="#ai-quiz">AI Quiz Tool</a>
             <a href="#features">Tính Năng</a>
             <a href="#contact">Liên Hệ</a>
         </nav>
@@ -336,7 +322,7 @@
             <p>Hệ sinh thái phần mềm Auto thông minh, tích hợp AI Computer Vision. Giải phóng đôi tay, tối ưu thời gian, làm chủ trò chơi của bạn.</p>
             <div class="btn-group">
                 <a href="#products" class="btn btn-primary"><i class="fas fa-rocket"></i> Khám Phá Ngay</a>
-                <a href="#ai-quiz" class="btn btn-outline"><i class="fas fa-brain"></i> Thử Nghiệm AI</a>
+                <a href="#features" class="btn btn-outline"><i class="fas fa-microchip"></i> Công Nghệ Lõi</a>
             </div>
         </div>
     </section>
@@ -344,12 +330,12 @@
     <section id="products">
         <div class="section-header">
             <h2>HỆ SINH THÁI <span>PHẦN MỀM</span></h2>
-            <p>Tuyển tập các công cụ Auto mạnh mẽ nhất được phát triển độc quyền bởi Jun Phạm.</p>
+            <p>Tuyển tập các công cụ Auto và AI mạnh mẽ nhất được phát triển độc quyền bởi Jun Phạm.</p>
         </div>
         
         <div class="grid-cards">
             <div class="card">
-                <div class="badge hot">HOT VERSION 7.1</div>
+                <div class="badge hot">HOT VERSION 6.6</div>
                 <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
                 <h3>Auto CoC VIP (Farm)</h3>
                 <p>Công nghệ soi màu bão hòa, nhận diện ảnh AI 100% không can thiệp code game. Hỗ trợ vuốt map, chùm tọa độ, chạy nền Multi-instance siêu nhẹ.</p>
@@ -357,8 +343,8 @@
                     <i class="fas fa-download"></i> TẢI BẢN ZIP MỚI NHẤT
                 </a>
             </div>
-            
-        <div class="card">
+
+            <div class="card">
                 <div class="badge hot" style="background: rgba(112, 0, 255, 0.2); border-color: var(--secondary); color: #d896ff;">AI POWERED</div>
                 <div class="card-icon" style="color: var(--secondary); background: rgba(112, 0, 255, 0.1);"><i class="fas fa-brain"></i></div>
                 <h3>AI Quiz Premium</h3>
@@ -367,7 +353,7 @@
                     <i class="fas fa-external-link-alt"></i> TRẢI NGHIỆM NGAY
                 </a>
             </div>
-            
+
             <div class="card">
                 <div class="badge">DEVELOPING</div>
                 <div class="card-icon"><i class="fas fa-gem"></i></div>
@@ -387,23 +373,6 @@
                     <i class="fas fa-lock"></i> SẮP RA MẮT
                 </a>
             </div>
-        </div>
-    </section>
-
-    <section id="ai-quiz" style="background: var(--bg-surface);">
-        <div class="section-header">
-            <h2>AI QUIZ <span>PREMIUM</span></h2>
-            <p>Công cụ giải mã đề thi trắc nghiệm bằng Trí Tuệ Nhân Tạo. Hỗ trợ nhận diện Toán Học, bóc tách nội dung PDF/Word siêu tốc.</p>
-        </div>
-        
-        <div class="iframe-container">
-            <iframe src="quiz-maker.html" title="AI Quiz Maker"></iframe>
-        </div>
-        
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="quiz-maker.html" target="_blank" class="btn btn-outline">
-                <i class="fas fa-external-link-alt"></i> Mở Toàn Màn Hình
-            </a>
         </div>
     </section>
 
