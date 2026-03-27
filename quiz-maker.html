@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quiz UX Premium | Jun Phạm</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #050505; --bg-card: rgba(15, 15, 15, 0.98);
+            --primary: #00f0ff; --secondary: #7000ff; --text-main: #ffffff;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --gradient-text: linear-gradient(90deg, var(--primary), var(--secondary));
+            --neon-shadow: 0 0 35px rgba(0, 240, 255, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        h1, h2, h3, h4, h5, h6, .logo { font-family: 'Space Grotesk', sans-serif !important; }
+        button, input, textarea { font-family: 'Inter', sans-serif; }
+        
+        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.5; pointer-events: none; }
+        
+        header { position: fixed; top: 0; width: 100%; padding: 20px 5%; background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(12px); z-index: 1000; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 2px; }
+
+        .main-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 120px 20px 60px; position: relative; z-index: 1; }
+        .glass-card { background: var(--bg-card); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 45px; width: 100%; max-width: 1150px; position: relative; display: none; box-shadow: 0 25px 80px rgba(0,0,0,0.9); }
+        .glass-card.active { display: block; }
+        .glass-card::after { content: ''; position: absolute; inset: -1px; border-radius: 24px; padding: 1.5px; background: var(--gradient-text); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.35; pointer-events: none; }
+
+        .upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 60px 20px; text-align: center; cursor: pointer; transition: 0.3s; background: rgba(255, 255, 255, 0.02); margin-bottom: 25px; width: 100%; z-index: 10; position: relative;}
+        .upload-zone:hover { border-color: var(--primary); background: rgba(0, 240, 255, 0.05); box-shadow: var(--neon-shadow); }
+        .upload-zone i { font-size: 4rem; color: var(--secondary); margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(112, 0, 255, 0.4)); }
+        
+        .btn-cyber { padding: 18px 35px; background: var(--primary); color: #000; border: none; border-radius: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: var(--neon-shadow); transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; font-size: 1rem; letter-spacing: 1px; z-index: 10; position: relative;}
+        .btn-cyber:hover { transform: translateY(-3px); box-shadow: 0 0 45px rgba(0, 240, 255, 0.7); }
+
+        .edit-row { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 18px; padding: 25px; margin-bottom: 30px; position: relative; width: 100%; z-index: 10;}
+        .rendered-q { font-size: 1.25rem; color: #fff; line-height: 1.5; cursor: pointer; padding: 10px; border-radius: 8px; transition: 0.3s; margin-bottom: 15px; }
+        .rendered-q:hover { background: rgba(0,240,255,0.05); outline: 1px dashed var(--primary); }
+        
+        .raw-editor { display: none; width: 100%; height: 100px; background: #000; color: #fff; border: 1px solid var(--primary); border-radius: 8px; padding: 15px; margin-bottom: 15px; font-family: monospace; resize: vertical; }
+
+        .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .opt-item-wrapper { display: flex; align-items: center; gap: 10px; background: #000; padding: 10px 15px; border-radius: 10px; border: 1px solid #222; min-height: 48px; }
+        .opt-item-wrapper b { color: var(--primary); font-weight: 800; }
+        .rendered-opt { flex: 1; cursor: pointer; padding: 5px; border-radius: 4px; transition: 0.2s; }
+        .rendered-opt:hover { background: rgba(0,240,255,0.1); }
+        .raw-opt-editor { display: none; flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 1rem; font-family: monospace; }
+
+        .ans-selector { display: flex; gap: 12px; margin-top: 20px; align-items: center; z-index: 10; position: relative; flex-wrap: wrap;}
+        .letter-circle { width: 42px; height: 42px; border-radius: 50%; border: 1px solid #444; background: transparent; color: #fff; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .letter-circle.active { background: var(--primary); color: #000; box-shadow: var(--neon-shadow); border-color: var(--primary); }
+
+        .play-card { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); padding: 30px; border-radius: 20px; margin-bottom: 25px; width: 100%; z-index: 10; position: relative;}
+        .choice-row { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 18px; border-radius: 12px; margin: 12px 0; cursor: pointer; font-size: 1.1rem; transition: 0.2s; z-index: 10; position: relative;}
+        .choice-row.selected { border-color: var(--primary); background: rgba(0, 240, 255, 0.1); box-shadow: var(--neon-shadow); color: var(--primary); }
+        .choice-row.correct { border-color: #00e676; background: rgba(0, 230, 118, 0.1); color: #00e676; }
+        .choice-row.wrong { border-color: #ff4c4c; background: rgba(255, 76, 76, 0.1); color: #ff4c4c; }
+
+        .summary-box { text-align: center; padding: 40px; background: rgba(0,240,255,0.1); border-radius: 20px; border: 1px solid var(--primary); margin-bottom: 30px; width: 100%; z-index: 10; position: relative;}
+        .thumb { width: 75px; height: 75px; object-fit: cover; border-radius: 8px; border: 2px solid var(--primary); margin: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        
+        textarea#text-input { width: 100%; height: 120px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--glass-border); border-radius: 12px; padding: 18px; resize: none; margin-bottom: 25px; transition: 0.3s; font-size: 1rem; z-index: 10; position: relative;}
+        textarea#text-input:focus { outline: none; border-color: var(--primary); box-shadow: var(--neon-shadow); }
+
+        #batch-status { text-align: center; color: var(--primary); font-weight: 800; margin-bottom: 15px; font-size: 1.1rem; }
+
+        /* GIAO DIỆN MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .main-wrapper { padding: 90px 10px 30px; }
+            .glass-card { padding: 25px; border-radius: 16px; }
+            .edit-grid { grid-template-columns: 1fr; }
+            #scr-modes > div { grid-template-columns: 1fr; }
+            .rendered-q { font-size: 1.1rem; }
+            .btn-cyber { font-size: 0.9rem; padding: 15px; }
+            .upload-zone { padding: 30px 10px; }
+            .upload-zone i { font-size: 3rem; }
+            .upload-zone p { font-size: 1rem !important; }
+            .ans-selector span { display: block; width: 100%; margin-bottom: 10px; }
+            .ans-selector { justify-content: center; }
+            .logo { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+    <header><div class="logo">JUN PHẠM AI</div></header>
+
+    <div class="main-wrapper">
+        <div id="scr-input" class="glass-card active">
+            <h2 style="color:var(--primary); margin-bottom:30px;"><i class="fas fa-layer-group"></i> TRÍCH XUẤT ĐỀ THI THÔNG MINH</h2>
+            
+            <button id="btn-load-local" class="btn-cyber" style="margin-bottom:20px; background:transparent; border:1px solid var(--primary); color:var(--text-main); display:none;" onclick="loadSavedSession()">
+                <i class="fas fa-history"></i> TIẾP TỤC ĐỀ THI ĐANG LƯU TRÊN MÁY
+            </button>
+
+            <div id="batch-status" style="display:none">ĐANG ĐỌC FILE...</div>
+            <label class="upload-zone" for="file-upload">
+                <i class="fas fa-file-upload"></i>
+                <p style="font-weight:800; font-size:1.2rem; margin-bottom: 5px;">TẢI ẢNH, PDF HOẶC WORD VÀO ĐÂY</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">(Hỗ trợ: JPG, PNG, PDF, DOCX)</p>
+                <input type="file" id="file-upload" multiple accept="image/*,.pdf,.docx" style="display:none" onchange="handleFiles(event)">
+            </label>
+            <div id="thumb-container" style="display:flex; flex-wrap:wrap; justify-content:center; margin-bottom:20px; z-index: 10; position: relative;"></div>
+            <textarea id="text-input" placeholder="Dán văn bản có sẵn tại đây..."></textarea>
+            <button class="btn-cyber" type="button" style="margin-top:10px;" onclick="startSmartBatch()"><i class="fas fa-brain"></i> BẮT ĐẦU GIẢI MÃ TOÀN BỘ</button>
+        </div>
+
+        <div id="scr-review" class="glass-card">
+            <h2 style="color:var(--primary); margin-bottom:20px;"><i class="fas fa-check-double"></i> KIỂM ĐỊNH CHẤT LƯỢNG NGUỒN</h2>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px; z-index: 10; position: relative;">Bấm trực tiếp vào câu hỏi hoặc đáp án để sửa LaTeX nếu AI nhận diện thiếu.</p>
+            <div id="editor-container" style="max-height: 550px; overflow-y: auto; padding-right: 15px; margin-bottom: 30px; width: 100%; z-index: 10; position: relative;"></div>
+            <button class="btn-cyber" type="button" onclick="confirmAndProceed()"><i class="fas fa-check-circle"></i> XÁC NHẬN VÀ CHỐT ĐỀ</button>
+        </div>
+
+        <div id="scr-modes" class="glass-card">
+            <h2 style="color:var(--primary); margin-bottom:35px; text-align:center;">HÀNH TRÌNH BẮT ĐẦU</h2>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; width: 100%; z-index: 10; position: relative;">
+                <button class="btn-cyber" type="button" style="height:170px; flex-direction:column;" onclick="startLearn()"><i class="fas fa-book-open fa-2x"></i><br>Học thuộc</button>
+                <button class="btn-cyber" type="button" style="height:170px; flex-direction:column; background:var(--secondary); color:#fff;" onclick="startTest()"><i class="fas fa-graduation-cap fa-2x"></i><br>Thi thử (Shuffle)</button>
+            </div>
+            <button class="btn-cyber" type="button" style="margin-top:30px; background:transparent; border:1px solid #333; color:#fff;" onclick="toScr('scr-input')">QUAY LẠI TRANG CHỦ</button>
+        </div>
+
+        <div id="scr-play" class="glass-card">
+            <h2 id="play-title" style="color:var(--primary); margin-bottom:30px;"></h2>
+            <div id="summary-box" class="summary-box" style="display:none"></div>
+            <div id="play-container" style="max-height: 550px; overflow-y: auto; padding-right: 15px; width: 100%; z-index: 10; position: relative;"></div>
+            <button id="btn-submit" class="btn-cyber" type="button" style="display:none; margin-top:30px;" onclick="showResult()">NỘP BÀI THI</button>
+            <button class="btn-cyber" type="button" style="margin-top:20px; background:transparent; border:1px solid #444; color:#fff;" onclick="toScr('scr-modes')">THOÁT RA CHẾ ĐỘ CHỌN</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        let pArr = [];
+        class P { constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.s=Math.random()*1.8; this.sx=Math.random()*0.4-0.2; this.sy=Math.random()*0.4-0.2; this.c=Math.random()>0.5?'#00f0ff':'#7000ff'; } u() { this.x+=this.sx; this.y+=this.sy; if(this.x<0||this.x>canvas.width)this.sx*=-1; if(this.y<0||this.y>canvas.height)this.sy*=-1; } d() { ctx.fillStyle=this.c; ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fill(); } }
+        for(let i=0;i<50;i++) pArr.push(new P());
+        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); pArr.forEach(p=>{p.u();p.d();}); requestAnimationFrame(anim); }
+        anim();
+
+        const mathOptions = {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\[', right: '\\]', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\(', right: '\\)', display: false}
+            ],
+            throwOnError: false
+        };
+
+        const KEY = "AIzaSyDdyWnR6GBUpTeO4Y8CTGZvB05qvry6xK8";
+        
+        // 👉 ĐÃ THÊM LẠI HỆ THỐNG TỰ ĐỘNG SĂN MODEL 500 LƯỢT CỦA SẾP
+        const MODELS_TO_TRY = [
+            "gemini-3.1-flash-lite-preview", 
+            "gemini-3.1-flash-lite",         
+            "gemini-2.5-flash"               
+        ];
+        
+        let masterQuiz = []; let uploadImgs = []; let activeExam = []; let userAns = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if(localStorage.getItem('aiQuizData')) {
+                document.getElementById('btn-load-local').style.display = 'flex';
+            }
+        });
+
+        function saveLocal() {
+            localStorage.setItem('aiQuizData', JSON.stringify(masterQuiz));
+        }
+
+        function loadSavedSession() {
+            try {
+                masterQuiz = JSON.parse(localStorage.getItem('aiQuizData'));
+                if(masterQuiz && masterQuiz.length > 0) {
+                    renderReviewUI();
+                    toScr('scr-review');
+                }
+            } catch(e) {
+                alert("Lỗi tải dữ liệu lưu trữ!");
+            }
+        }
+
+        async function handleFiles(e) {
+            const container = document.getElementById('thumb-container'); 
+            const status = document.getElementById('batch-status');
+            
+            uploadImgs = [];
+            const files = Array.from(e.target.files);
+            
+            if(files.length > 0) {
+                status.innerText = "ĐANG ĐỌC FILE...";
+                status.style.display = 'block';
+            }
+
+            for (let file of files) {
+                if (file.type.match('image.*')) {
+                    const base64 = await readFileAsDataURL(file);
+                    uploadImgs.push({ mimeType: file.type, data: base64.split(',')[1] });
+                    addThumb(base64, container);
+                } else if (file.type === 'application/pdf') {
+                    await processPDF(file, container);
+                } else if (file.name.endsWith('.docx')) {
+                    await processWord(file);
+                }
+            }
+            status.style.display = 'none';
+        }
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function addThumb(src, container) {
+            const img = document.createElement('img'); 
+            img.src = src; 
+            img.className = 'thumb';
+            container.appendChild(img);
+        }
+
+        async function processPDF(file, container) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({scale: 1.5});
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    await page.render({canvasContext: ctx, viewport: viewport}).promise;
+                    const base64 = canvas.toDataURL('image/jpeg');
+                    uploadImgs.push({ mimeType: 'image/jpeg', data: base64.split(',')[1] });
+                    addThumb(base64, container);
+                }
+            } catch(e) {
+                console.error("Lỗi đọc PDF:", e);
+                alert("Lỗi đọc file PDF.");
+            }
+        }
+
+        async function processWord(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
+                const textInput = document.getElementById('text-input');
+                textInput.value += (textInput.value ? '\n\n' : '') + result.value;
+            } catch(e) {
+                console.error("Lỗi đọc Word:", e);
+                alert("Lỗi đọc file Word.");
+            }
+        }
+
+        // 👉 HÀM FETCH ĐÃ ĐƯỢC PHỤC HỒI CHỨC NĂNG "SĂN MODEL" 
+        async function fetchAndParse(parts) {
+            let lastError = null;
+
+            for (let modelName of MODELS_TO_TRY) {
+                try {
+                    console.log(`Đang thử gọi Model: ${modelName}...`);
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${KEY}`, {
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify({ 
+                            contents: [{ parts }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        })
+                    });
+                    
+                    const d = await res.json();
+                    
+                    if (!res.ok) {
+                        throw new Error(d.error ? d.error.message : "HTTP " + res.status);
+                    }
+                    
+                    let textResult = d.candidates[0].content.parts[0].text;
+                    const startIndex = textResult.indexOf('[');
+                    const endIndex = textResult.lastIndexOf(']');
+                    if(startIndex !== -1 && endIndex !== -1) {
+                        textResult = textResult.substring(startIndex, endIndex + 1);
+                    } else {
+                        textResult = textResult.replace(/```json/g,'').replace(/```/g,'').trim();
+                    }
+
+                    const json = JSON.parse(textResult);
+                    if(Array.isArray(json)) masterQuiz = [...masterQuiz, ...json];
+                    
+                    console.log(`✅ Thành công với Model: ${modelName}`);
+                    return; 
+
+                } catch (e) { 
+                    console.warn(`❌ Model ${modelName} thất bại. Lý do: ${e.message}`);
+                    lastError = e;
+                }
+            }
+            alert("LỖI TỪ GOOGLE AI (Đã thử tất cả các Model): " + lastError.message);
+            throw lastError; 
+        }
+
+        async function startSmartBatch() {
+            const extra = document.getElementById('text-input').value;
+            const status = document.getElementById('batch-status'); 
+            
+            if(uploadImgs.length === 0 && !extra.trim()) {
+                alert("Vui lòng tải file, tải ảnh hoặc dán nội dung văn bản!");
+                return;
+            }
+            
+            status.style.display = 'block'; 
+            masterQuiz = [];
+            
+            // 👉 CHIA NHỎ THEO CÔNG THỨC MỚI CỦA SẾP: 1 ẢNH/LẦN CHO CHẮC CÚ
+            const batchSize = 1;
+            const totalBatches = uploadImgs.length;
+
+            // 👉 PROMPT MỚI NGHIÊM NGẶT HƠN
+            const prompt = `Đếm tổng số câu hỏi có trong ảnh trước khi làm việc. Bắt buộc phải trích xuất tuần tự từ câu đầu tiên đến câu cuối cùng. Tuyệt đối không được bỏ sót bất kỳ câu nào. Trích xuất 100% câu hỏi trắc nghiệm từ ảnh. Dùng $...$ cho LaTeX. Trả về mảng JSON: [{"question": "..", "options": [".."], "correctIndex": 0, "explanation": ".."}]`;
+
+            try {
+                if (uploadImgs.length === 0) {
+                    status.innerText = `ĐANG PHÂN TÍCH VĂN BẢN...`;
+                    await fetchAndParse([{ text: `${prompt}\n\n${extra}` }]);
+                } else {
+                    for (let i = 0; i < uploadImgs.length; i += batchSize) {
+                        const chunk = uploadImgs.slice(i, i + batchSize);
+                        status.innerText = `ĐANG GIẢI MÃ NHÓM ${Math.floor(i/batchSize)+1}/${totalBatches}...`;
+                        const parts = [{ text: prompt + (i===0 ? "\nText bổ sung: " + extra : "") }];
+                        chunk.forEach(m => parts.push({ inlineData: m }));
+                        await fetchAndParse(parts);
+                    }
+                }
+
+                status.style.display = 'none';
+                if(masterQuiz.length > 0) { 
+                    saveLocal(); // Lưu vào bộ nhớ máy
+                    renderReviewUI(); 
+                    toScr('scr-review'); 
+                    document.getElementById('btn-load-local').style.display = 'flex';
+                }
+            } catch (error) {
+                status.style.display = 'none';
+            }
+        }
+
+        function renderReviewUI() {
+            const container = document.getElementById('editor-container'); container.innerHTML = '';
+            masterQuiz.forEach((q, i) => {
+                const div = document.createElement('div'); div.className = 'edit-row';
+                
+                let optionsHTML = q.options.map((o, oi) => `
+                    <div class="opt-item-wrapper">
+                        <b>${String.fromCharCode(65+oi)}</b>
+                        <div class="rendered-opt" id="opt-view-${i}-${oi}" onclick="toggleOptEdit(${i}, ${oi})">${String(o).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                        <input class="raw-opt-editor" id="opt-raw-${i}-${oi}" value="${String(o).replace(/"/g, '&quot;')}" onblur="finishOptEdit(${i}, ${oi})">
+                    </div>
+                `).join('');
+
+                div.innerHTML = `
+                    <div class="rendered-q" id="q-view-${i}" onclick="toggleEdit(${i})"><b>Câu ${i+1}:</b> ${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                    <textarea class="raw-editor" id="q-raw-${i}" onblur="finishEdit(${i})">${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                    
+                    <div class="edit-grid">${optionsHTML}</div>
+                    
+                    <div class="ans-selector">
+                        <span style="font-weight: 600; color: #aaa;">ĐÁP ÁN ĐÚNG:</span>
+                        ${q.options.map((_,oi)=>`<button type="button" class="letter-circle ${oi===q.correctIndex?'active':''}" onclick="setCorrectIdx(${i}, ${oi}, this)">${String.fromCharCode(65+oi)}</button>`).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            setTimeout(() => {
+                masterQuiz.forEach((q, i) => {
+                    renderMathSafe(`q-view-${i}`);
+                    q.options.forEach((_, oi) => renderMathSafe(`opt-view-${i}-${oi}`));
+                });
+            }, 50);
+        }
+
+        function toggleEdit(idx) {
+            document.getElementById(`q-view-${idx}`).style.display = 'none';
+            const raw = document.getElementById(`q-raw-${idx}`);
+            raw.style.display = 'block'; raw.focus();
+        }
+
+        function finishEdit(idx) {
+            const rawVal = document.getElementById(`q-raw-${idx}`).value;
+            masterQuiz[idx].question = rawVal;
+            const view = document.getElementById(`q-view-${idx}`);
+            view.innerHTML = `<b>Câu ${idx+1}:</b> ${String(rawVal).replace(/</g, '&lt;').replace(/>/g, '&gt;')}`;
+            view.style.display = 'block';
+            document.getElementById(`q-raw-${idx}`).style.display = 'none';
+            renderMathSafe(`q-view-${idx}`);
+            saveLocal();
+        }
+
+        function toggleOptEdit(qIdx, oIdx) {
+            document.getElementById(`opt-view-${qIdx}-${oIdx}`).style.display = 'none';
+            const raw = document.getElementById(`opt-raw-${qIdx}-${oIdx}`);
+            raw.style.display = 'block'; raw.focus();
+        }
+
+        function finishOptEdit(qIdx, oIdx) {
+            const rawVal = document.getElementById(`opt-raw-${qIdx}-${oIdx}`).value;
+            masterQuiz[qIdx].options[oIdx] = rawVal;
+            const view = document.getElementById(`opt-view-${qIdx}-${oIdx}`);
+            view.innerHTML = String(rawVal).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            view.style.display = 'block';
+            document.getElementById(`opt-raw-${qIdx}-${oIdx}`).style.display = 'none';
+            renderMathSafe(`opt-view-${qIdx}-${oIdx}`);
+            saveLocal();
+        }
+
+        function setCorrectIdx(qIdx, oIdx, btn) {
+            masterQuiz[qIdx].correctIndex = oIdx;
+            btn.parentNode.querySelectorAll('.letter-circle').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            saveLocal();
+        }
+
+        function renderMathSafe(id) {
+            const el = document.getElementById(id);
+            if(window.renderMathInElement && el) {
+                try { renderMathInElement(el, mathOptions); } catch (e) { console.warn("KaTeX Error: ", e); }
+            }
+        }
+
+        function startLearn() {
+            toScr('scr-play'); document.getElementById('play-title').innerText = "HỌC THUỘC";
+            const box = document.getElementById('play-container'); box.innerHTML = '';
+            masterQuiz.forEach((q, i) => {
+                box.innerHTML += `<div class="play-card"><p style="font-size: 1.2rem; margin-bottom: 15px;"><b>${i+1}. ${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</b></p>
+                ${q.options.map((o,oi)=>`<div class="choice-row ${oi==q.correctIndex?'correct':''}"><b>${String.fromCharCode(65+oi)}.</b> <span class="math-opt">${String(o).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>`).join('')}
+                <p style="color:var(--primary); font-size:1rem; margin-top:15px; border-left:3px solid var(--primary); padding-left:15px;"><i>💡 ${String(q.explanation).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</i></p></div>`;
+            });
+            try { renderMathInElement(box, mathOptions); } catch(e) {}
+        }
+
+        function startTest() {
+            toScr('scr-play'); document.getElementById('play-title').innerText = "THI THỬ SÁT HẠCH (ĐẢO ĐỀ)";
+            document.getElementById('btn-submit').style.display = 'flex';
+            const box = document.getElementById('play-container'); box.innerHTML = ''; userAns = {};
+            activeExam = JSON.parse(JSON.stringify(masterQuiz)).sort(() => Math.random() - 0.5);
+
+            activeExam.forEach((q, i) => {
+                let realCorrect = q.options[q.correctIndex];
+                q.options.sort(() => Math.random() - 0.5);
+                q.newIdx = q.options.indexOf(realCorrect);
+                const d = document.createElement('div'); d.className = 'play-card';
+                d.innerHTML = `<p style="font-size: 1.2rem; margin-bottom: 15px;"><b>${i+1}. ${String(q.question).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</b></p>`;
+                q.options.forEach((o, oi) => {
+                    const r = document.createElement('div'); r.className = `choice-row user-pick-${i}`; r.innerHTML = `<b>${String.fromCharCode(65+oi)}.</b> <span class="math-opt">${String(o).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
+                    r.onclick = () => { userAns[i] = oi; document.querySelectorAll(`.user-pick-${i}`).forEach(x => x.classList.remove('selected')); r.classList.add('selected'); };
+                    d.appendChild(r);
+                });
+                box.appendChild(d);
+            });
+            try { renderMathInElement(box, mathOptions); } catch(e) {}
+        }
+
+        function showResult() {
+            if (Object.keys(userAns).length < activeExam.length) {
+                if(!confirm("Bạn chưa hoàn thành tất cả câu hỏi! Có muốn nộp bài luôn không?")) return;
+            }
+            let s = 0;
+            activeExam.forEach((q, i) => {
+                const rs = document.querySelectorAll(`.user-pick-${i}`); rs.forEach(r => r.style.pointerEvents = 'none');
+                if(userAns[i] === q.newIdx) s++;
+                if(userAns[i] !== undefined) rs[userAns[i]].classList.add(userAns[i]==q.newIdx?'correct':'wrong');
+                if (rs[q.newIdx]) rs[q.newIdx].classList.add('correct');
+            });
+            const board = document.getElementById('summary-box'); board.style.display = 'block';
+            board.innerHTML = `<h2 style="color:var(--primary); font-size:2rem; margin-bottom: 10px;">🎯 TỔNG ĐIỂM: ${s} / ${activeExam.length}</h2><p style="color: #ccc;">Xem lại chi tiết bài làm bên dưới.</p>`;
+            document.getElementById('btn-submit').style.display = 'none';
+            document.getElementById('play-container').scrollTo(0,0);
+        }
+
+        function toScr(id) {
+            document.querySelectorAll('.glass-card').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(id);
+            if (target) target.classList.add('active');
+            const summaryBox = document.getElementById('summary-box');
+            if (summaryBox) summaryBox.style.display = 'none';
+            const btnSubmit = document.getElementById('btn-submit');
+            if (btnSubmit) btnSubmit.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function confirmAndProceed() {
+            try {
+                toScr('scr-modes');
+            } catch(e) {
+                alert("Lỗi chuyển trang: " + e);
+            }
+        }
+    </script>
+</body>
+</html>
