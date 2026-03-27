@@ -193,8 +193,8 @@
 
         const WORKER_URL = "/api/gemini"; 
         
-        // 👉 ĐÃ THÊM MÃ -preview ĐỂ TRUY CẬP ĐÚNG API CỦA BẢN 3.1 FLASH LITE
-        const MODELS_TO_TRY = ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash"];
+        // Ưu tiên bản 3.1 Flash Lite mạnh nhất
+        const MODELS_TO_TRY = ["gemini-3.1-flash-lite-preview", "gemini-3.1-flash-lite", "gemini-2.5-flash"];
         
         const mathOptions = { delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\[', right: '\\]', display: true}, {left: '$', right: '$', display: false}, {left: '\\(', right: '\\)', display: false}], throwOnError: false };
         
@@ -259,7 +259,29 @@
                             model: modelName,
                             payload: {
                                 contents: [{ parts }],
-                                generationConfig: { responseMimeType: "application/json" }
+                                // 👉 VŨ KHÍ TỐI THƯỢNG: ÉP KHUÔN JSON 100% HOÀN HẢO
+                                generationConfig: { 
+                                    responseMimeType: "application/json",
+                                    responseSchema: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            questions: {
+                                                type: "ARRAY",
+                                                items: {
+                                                    type: "OBJECT",
+                                                    properties: {
+                                                        question: { type: "STRING" },
+                                                        options: { type: "ARRAY", items: { type: "STRING" } },
+                                                        correctIndex: { type: "INTEGER" },
+                                                        explanation: { type: "STRING" }
+                                                    },
+                                                    required: ["question", "options", "correctIndex", "explanation"]
+                                                }
+                                            }
+                                        },
+                                        required: ["questions"]
+                                    }
+                                }
                             }
                         })
                     });
@@ -267,27 +289,21 @@
                     const d = await res.json();
                     
                     if (!res.ok) {
-                        throw new Error(d.error ? d.error.message : "HTTP " + res.status);
+                        throw new Error(d.error ? d.error.message : "Lỗi Server");
                     }
                     
                     let textResult = "";
-                    if (d.candidates && d.candidates.length > 0 && 
-                        d.candidates[0].content && d.candidates[0].content.parts && 
-                        d.candidates[0].content.parts.length > 0) {
+                    if (d.candidates && d.candidates[0].content && d.candidates[0].content.parts) {
                         textResult = d.candidates[0].content.parts[0].text;
                     } else {
-                        throw new Error("AI trả về dữ liệu rỗng.");
+                        throw new Error("Dữ liệu rỗng");
                     }
 
-                    textResult = textResult.replace(/```json/g,'').replace(/```/g,'').trim();
-                    const startIndex = textResult.indexOf('['); const endIndex = textResult.lastIndexOf(']');
-                    if(startIndex !== -1 && endIndex !== -1) {
-                        textResult = textResult.substring(startIndex, endIndex + 1);
-                    }
-                    textResult = textResult.replace(/,\s*([\]}])/g, '$1');
-
+                    // Nhờ có Schema, parse trực tiếp cực mượt mà không cần xử lý chuỗi
                     const json = JSON.parse(textResult);
-                    if(Array.isArray(json)) masterQuiz = [...masterQuiz, ...json];
+                    if(json.questions && Array.isArray(json.questions)) {
+                        masterQuiz = [...masterQuiz, ...json.questions];
+                    }
                     return; 
                 } catch (e) { 
                     lastError = e; 
@@ -303,14 +319,7 @@
             status.style.display = 'block'; masterQuiz = [];
             const batchSize = 1; const totalBatches = uploadImgs.length;
             
-            // 👉 PROMPT ÉP BUỘC TRÍCH XUẤT 100% CÂU HỎI
-            const prompt = `Nhiệm vụ của bạn là TRÍCH XUẤT TOÀN BỘ CÂU HỎI TRẮC NGHIỆM có trong ảnh này. 
-QUY TẮC NGHIÊM NGẶT:
-1. Quét cẩn thận từ trên xuống dưới, đếm chính xác số lượng câu hỏi.
-2. TRÍCH XUẤT BẰNG HẾT 100% SỐ CÂU. TUYỆT ĐỐI KHÔNG ĐƯỢC TÓM TẮT HAY BỎ SÓT BẤT KỲ CÂU NÀO!
-3. Dùng $...$ cho công thức Toán/LaTeX.
-4. CHỈ TRẢ VỀ DUY NHẤT MỘT MẢNG JSON HỢP LỆ, không kèm theo bất kỳ văn bản giải thích nào khác. Chú ý escape dấu ngoặc kép (\\") bên trong chuỗi.
-Định dạng JSON bắt buộc: [{"question": "...", "options": ["...", "..."], "correctIndex": 0, "explanation": "..."}]`;
+            const prompt = `Trích xuất 100% câu hỏi trắc nghiệm từ ảnh. BẮT BUỘC KHÔNG BỎ SÓT CÂU NÀO. Dùng $...$ cho Toán/LaTeX. Hãy tuân thủ cấu trúc JSON được yêu cầu.`;
 
             try {
                 if (uploadImgs.length === 0) {
@@ -323,10 +332,9 @@ QUY TẮC NGHIÊM NGẶT:
                         const parts = [{ text: prompt + (i===0 ? "\nText bổ sung: " + extra : "") }];
                         chunk.forEach(m => parts.push({ inlineData: m }));
                         
-                        // 👉 KHÔNG DÙNG ALERT ĐỂ TRÁNH SPAM
                         await fetchAndParse(parts).catch(e => {
                             console.error(`Bị lỗi ở nhóm ${Math.floor(i/batchSize)+1}: ${e.message}`);
-                            status.innerText = `⚠️ Lỗi đọc chữ ở ảnh ${Math.floor(i/batchSize)+1}. Đang bỏ qua và quét tiếp...`;
+                            status.innerText = `⚠️ Bỏ qua nhóm ${Math.floor(i/batchSize)+1} do ảnh lỗi/quá mờ...`;
                         });
 
                         if (i + batchSize < uploadImgs.length) {
@@ -335,8 +343,16 @@ QUY TẮC NGHIÊM NGẶT:
                         }
                     }
                 }
+                
                 status.style.display = 'none';
-                if(masterQuiz.length > 0) { saveLocal(); renderReviewUI(); toScr('scr-review'); document.getElementById('btn-load-local').style.display = 'flex'; }
+                
+                // 👉 CẢNH BÁO NẾU AI LƯỜI KHÔNG QUÉT ĐƯỢC GÌ
+                if(masterQuiz.length > 0) { 
+                    saveLocal(); renderReviewUI(); toScr('scr-review'); document.getElementById('btn-load-local').style.display = 'flex'; 
+                } else {
+                    alert("Quét xong nhưng không nhận diện được câu hỏi nào hợp lệ! Vui lòng thử lại với ảnh rõ nét hơn.");
+                }
+                
             } catch (error) { 
                 status.style.display = 'none'; 
             }
