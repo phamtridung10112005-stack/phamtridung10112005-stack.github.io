@@ -192,7 +192,9 @@
         anim();
 
         const WORKER_URL = "/api/gemini"; 
-        const MODELS_TO_TRY = ["gemini-3.1-flash-lite", "gemini-2.5-flash", "gemini-1.5-flash"];
+        
+        // 👉 ĐÃ THÊM MÃ -preview ĐỂ TRUY CẬP ĐÚNG API CỦA BẢN 3.1 FLASH LITE
+        const MODELS_TO_TRY = ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash"];
         
         const mathOptions = { delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\[', right: '\\]', display: true}, {left: '$', right: '$', display: false}, {left: '\\(', right: '\\)', display: false}], throwOnError: false };
         
@@ -205,7 +207,7 @@
         });
 
         function saveLocal() { localStorage.setItem('aiQuizData', JSON.stringify(masterQuiz)); }
-        function loadSavedSession() { try { masterQuiz = JSON.parse(localStorage.getItem('aiQuizData')); if(masterQuiz && masterQuiz.length > 0) { renderReviewUI(); toScr('scr-review'); } } catch(e) { alert("Lỗi tải dữ liệu lưu trữ!"); } }
+        function loadSavedSession() { try { masterQuiz = JSON.parse(localStorage.getItem('aiQuizData')); if(masterQuiz && masterQuiz.length > 0) { renderReviewUI(); toScr('scr-review'); } } catch(e) {} }
 
         async function handleFiles(e) {
             const container = document.getElementById('thumb-container'); const status = document.getElementById('batch-status');
@@ -236,14 +238,14 @@
                     await page.render({canvasContext: ctx, viewport: viewport}).promise;
                     const base64 = canvas.toDataURL('image/jpeg'); uploadImgs.push({ mimeType: 'image/jpeg', data: base64.split(',')[1] }); addThumb(base64, container);
                 }
-            } catch(e) {}
+            } catch(e) { }
         }
 
         async function processWord(file) {
             try {
                 const arrayBuffer = await file.arrayBuffer(); const result = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
                 const textInput = document.getElementById('text-input'); textInput.value += (textInput.value ? '\n\n' : '') + result.value;
-            } catch(e) {}
+            } catch(e) { }
         }
 
         async function fetchAndParse(parts) {
@@ -300,7 +302,15 @@
             
             status.style.display = 'block'; masterQuiz = [];
             const batchSize = 1; const totalBatches = uploadImgs.length;
-            const prompt = `Trích xuất 100% câu hỏi trắc nghiệm từ ảnh. Dùng $...$ cho công thức Toán/LaTeX. BẮT BUỘC TRẢ VỀ ĐÚNG ĐỊNH DẠNG MẢNG JSON HỢP LỆ, không kèm theo văn bản nào khác. Hãy cẩn thận escape các dấu ngoặc kép (\\") và dấu backslash (\\\\). Cấu trúc mẫu: [{"question": "...", "options": ["...", "..."], "correctIndex": 0, "explanation": "..."}]`;
+            
+            // 👉 PROMPT ÉP BUỘC TRÍCH XUẤT 100% CÂU HỎI
+            const prompt = `Nhiệm vụ của bạn là TRÍCH XUẤT TOÀN BỘ CÂU HỎI TRẮC NGHIỆM có trong ảnh này. 
+QUY TẮC NGHIÊM NGẶT:
+1. Quét cẩn thận từ trên xuống dưới, đếm chính xác số lượng câu hỏi.
+2. TRÍCH XUẤT BẰNG HẾT 100% SỐ CÂU. TUYỆT ĐỐI KHÔNG ĐƯỢC TÓM TẮT HAY BỎ SÓT BẤT KỲ CÂU NÀO!
+3. Dùng $...$ cho công thức Toán/LaTeX.
+4. CHỈ TRẢ VỀ DUY NHẤT MỘT MẢNG JSON HỢP LỆ, không kèm theo bất kỳ văn bản giải thích nào khác. Chú ý escape dấu ngoặc kép (\\") bên trong chuỗi.
+Định dạng JSON bắt buộc: [{"question": "...", "options": ["...", "..."], "correctIndex": 0, "explanation": "..."}]`;
 
             try {
                 if (uploadImgs.length === 0) {
@@ -313,8 +323,10 @@
                         const parts = [{ text: prompt + (i===0 ? "\nText bổ sung: " + extra : "") }];
                         chunk.forEach(m => parts.push({ inlineData: m }));
                         
+                        // 👉 KHÔNG DÙNG ALERT ĐỂ TRÁNH SPAM
                         await fetchAndParse(parts).catch(e => {
-                            status.innerText = `⚠️ Lỗi quét ảnh ${Math.floor(i/batchSize)+1}. Đang tự động quét tiếp...`;
+                            console.error(`Bị lỗi ở nhóm ${Math.floor(i/batchSize)+1}: ${e.message}`);
+                            status.innerText = `⚠️ Lỗi đọc chữ ở ảnh ${Math.floor(i/batchSize)+1}. Đang bỏ qua và quét tiếp...`;
                         });
 
                         if (i + batchSize < uploadImgs.length) {
