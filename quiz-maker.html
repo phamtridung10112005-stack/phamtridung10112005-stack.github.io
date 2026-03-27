@@ -193,7 +193,6 @@
 
         const WORKER_URL = "/api/gemini"; 
         
-        // Ưu tiên bản 3.1 Flash Lite mạnh nhất
         const MODELS_TO_TRY = ["gemini-3.1-flash-lite-preview", "gemini-3.1-flash-lite", "gemini-2.5-flash"];
         
         const mathOptions = { delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\[', right: '\\]', display: true}, {left: '$', right: '$', display: false}, {left: '\\(', right: '\\)', display: false}], throwOnError: false };
@@ -259,7 +258,6 @@
                             model: modelName,
                             payload: {
                                 contents: [{ parts }],
-                                // 👉 VŨ KHÍ TỐI THƯỢNG: ÉP KHUÔN JSON 100% HOÀN HẢO
                                 generationConfig: { 
                                     responseMimeType: "application/json",
                                     responseSchema: {
@@ -299,7 +297,6 @@
                         throw new Error("Dữ liệu rỗng");
                     }
 
-                    // Nhờ có Schema, parse trực tiếp cực mượt mà không cần xử lý chuỗi
                     const json = JSON.parse(textResult);
                     if(json.questions && Array.isArray(json.questions)) {
                         masterQuiz = [...masterQuiz, ...json.questions];
@@ -319,7 +316,7 @@
             status.style.display = 'block'; masterQuiz = [];
             const batchSize = 1; const totalBatches = uploadImgs.length;
             
-            const prompt = `Trích xuất 100% câu hỏi trắc nghiệm từ ảnh. BẮT BUỘC KHÔNG BỎ SÓT CÂU NÀO. Dùng $...$ cho Toán/LaTeX. Hãy tuân thủ cấu trúc JSON được yêu cầu.`;
+            const prompt = `Trích xuất 100% câu hỏi trắc nghiệm từ ảnh. BẮT BUỘC KHÔNG BỎ SÓT CÂU NÀO. Dùng $...$ cho Toán/LaTeX. Hãy tuân thủ cấu trúc JSON được yêu cầu. Nếu không biết đáp án đúng, hãy để correctIndex là 0 và explanation là "Chưa có giải thích".`;
 
             try {
                 if (uploadImgs.length === 0) {
@@ -332,21 +329,33 @@
                         const parts = [{ text: prompt + (i===0 ? "\nText bổ sung: " + extra : "") }];
                         chunk.forEach(m => parts.push({ inlineData: m }));
                         
-                        await fetchAndParse(parts).catch(e => {
-                            console.error(`Bị lỗi ở nhóm ${Math.floor(i/batchSize)+1}: ${e.message}`);
-                            status.innerText = `⚠️ Bỏ qua nhóm ${Math.floor(i/batchSize)+1} do ảnh lỗi/quá mờ...`;
-                        });
+                        let success = false;
+                        let retries = 0;
+                        while (!success && retries < 3) {
+                            try {
+                                await fetchAndParse(parts);
+                                success = true;
+                            } catch (e) {
+                                retries++;
+                                if (retries >= 3) {
+                                    console.error(`Bị lỗi ở nhóm ${Math.floor(i/batchSize)+1}: ${e.message}`);
+                                    status.innerText = `⚠️ Bỏ qua nhóm ${Math.floor(i/batchSize)+1} do lỗi...`;
+                                } else {
+                                    status.innerText = `⏳ Quá tải, thử lại lần ${retries}...`;
+                                    await sleep(6000);
+                                }
+                            }
+                        }
 
                         if (i + batchSize < uploadImgs.length) {
-                            status.innerText = `❄️ LÀM MÁT AI ĐỂ TRÁNH QUÁ TẢI (Đợi 4s)...`;
-                            await sleep(4000); 
+                            status.innerText = `❄️ LÀM MÁT AI ĐỂ TRÁNH QUÁ TẢI (Đợi 6s)...`;
+                            await sleep(6000); 
                         }
                     }
                 }
                 
                 status.style.display = 'none';
                 
-                // 👉 CẢNH BÁO NẾU AI LƯỜI KHÔNG QUÉT ĐƯỢC GÌ
                 if(masterQuiz.length > 0) { 
                     saveLocal(); renderReviewUI(); toScr('scr-review'); document.getElementById('btn-load-local').style.display = 'flex'; 
                 } else {
