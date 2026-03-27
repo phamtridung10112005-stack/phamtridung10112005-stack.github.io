@@ -150,7 +150,7 @@
         anim();
 
         // 👉 CẤU HÌNH LIÊN KẾT ĐẾN CLOUDFLARE WORKER CỦA SẾP
-        const WORKER_URL = "https://ai-quiz-backend.phamtridung1011.workers.dev"; 
+        const WORKER_URL = "/api/gemini"; 
         
         const mathOptions = { delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\[', right: '\\]', display: true}, {left: '$', right: '$', display: false}, {left: '\\(', right: '\\)', display: false}], throwOnError: false };
         const MODELS_TO_TRY = ["gemini-3.1-flash-lite-preview", "gemini-3.1-flash-lite", "gemini-2.5-flash"];
