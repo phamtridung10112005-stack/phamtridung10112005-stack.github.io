@@ -25,11 +25,9 @@
             --neon-shadow: 0 0 35px rgba(0, 240, 255, 0.3);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        
         h1, h2, h3, h4, h5, h6, .logo { font-family: 'Space Grotesk', sans-serif !important; }
         button, input, textarea { font-family: 'Inter', sans-serif; }
         
-        /* Chỉnh nền trong suốt để ghép mượt vào Iframe nếu cần */
         body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.5; pointer-events: none; }
         
@@ -149,19 +147,21 @@
         function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); pArr.forEach(p=>{p.u();p.d();}); requestAnimationFrame(anim); }
         anim();
 
-        // 👉 CẤU HÌNH LIÊN KẾT ĐẾN CLOUDFLARE WORKER CỦA SẾP
+        // 👉 ĐỊNH TUYẾN MÁY CHỦ VÀ MODEL (CHỈ DÙNG 3.1 FLASH LITE)
         const WORKER_URL = "/api/gemini"; 
+        const MODEL_NAME = "gemini-3.1-flash-lite"; 
         
         const mathOptions = { delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\[', right: '\\]', display: true}, {left: '$', right: '$', display: false}, {left: '\\(', right: '\\)', display: false}], throwOnError: false };
-        const MODELS_TO_TRY = ["gemini-3.1-flash-lite-preview", "gemini-3.1-flash-lite", "gemini-2.5-flash"];
         
         let masterQuiz = []; let uploadImgs = []; let activeExam = []; let userAns = {};
+
+        // HÀM TẠO THỜI GIAN NGHỈ (COOLDOWN)
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
 
         document.addEventListener('DOMContentLoaded', () => {
             if(localStorage.getItem('aiQuizData')) document.getElementById('btn-load-local').style.display = 'flex';
         });
 
-        // LƯU TRỮ VÀ XỬ LÝ FILE
         function saveLocal() { localStorage.setItem('aiQuizData', JSON.stringify(masterQuiz)); }
         function loadSavedSession() { try { masterQuiz = JSON.parse(localStorage.getItem('aiQuizData')); if(masterQuiz && masterQuiz.length > 0) { renderReviewUI(); toScr('scr-review'); } } catch(e) { alert("Lỗi tải dữ liệu lưu trữ!"); } }
 
@@ -204,44 +204,34 @@
             } catch(e) { alert("Lỗi đọc file Word."); }
         }
 
-        // 👉 FETCH DATA QUA MÁY CHỦ BẢO MẬT CLOUDFLARE
+        // 👉 FETCH DATA: CHỈ GỌI DUY NHẤT CON 3.1 FLASH LITE
         async function fetchAndParse(parts) {
-            let lastError = null;
+            try {
+                const res = await fetch(WORKER_URL, {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ 
+                        model: MODEL_NAME,
+                        payload: {
+                            contents: [{ parts }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        }
+                    })
+                });
+                
+                const d = await res.json();
+                if (!res.ok) throw new Error(d.error ? d.error.message : "HTTP " + res.status);
+                
+                let textResult = d.candidates[0].content.parts[0].text;
+                const startIndex = textResult.indexOf('['); const endIndex = textResult.lastIndexOf(']');
+                if(startIndex !== -1 && endIndex !== -1) textResult = textResult.substring(startIndex, endIndex + 1);
+                else textResult = textResult.replace(/```json/g,'').replace(/```/g,'').trim();
 
-            for (let modelName of MODELS_TO_TRY) {
-                try {
-                    console.log(`Đang gọi Model ${modelName} qua Cloudflare Worker...`);
-                    const res = await fetch(WORKER_URL, {
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify({ 
-                            model: modelName,
-                            payload: {
-                                contents: [{ parts }],
-                                generationConfig: { responseMimeType: "application/json" }
-                            }
-                        })
-                    });
-                    
-                    const d = await res.json();
-                    if (!res.ok) throw new Error(d.error ? d.error.message : "HTTP " + res.status);
-                    
-                    let textResult = d.candidates[0].content.parts[0].text;
-                    const startIndex = textResult.indexOf('['); const endIndex = textResult.lastIndexOf(']');
-                    if(startIndex !== -1 && endIndex !== -1) textResult = textResult.substring(startIndex, endIndex + 1);
-                    else textResult = textResult.replace(/```json/g,'').replace(/```/g,'').trim();
-
-                    const json = JSON.parse(textResult);
-                    if(Array.isArray(json)) masterQuiz = [...masterQuiz, ...json];
-                    
-                    console.log(`✅ Thành công với Model: ${modelName}`);
-                    return; 
-                } catch (e) { 
-                    console.warn(`❌ Model ${modelName} thất bại. Lý do: ${e.message}`);
-                    lastError = e; 
-                }
+                const json = JSON.parse(textResult);
+                if(Array.isArray(json)) masterQuiz = [...masterQuiz, ...json];
+            } catch (e) { 
+                throw e; 
             }
-            alert("LỖI TỪ MÁY CHỦ: " + lastError.message); throw lastError; 
         }
 
         async function startSmartBatch() {
@@ -262,12 +252,22 @@
                         status.innerText = `ĐANG GIẢI MÃ NHÓM ${Math.floor(i/batchSize)+1}/${totalBatches}...`;
                         const parts = [{ text: prompt + (i===0 ? "\nText bổ sung: " + extra : "") }];
                         chunk.forEach(m => parts.push({ inlineData: m }));
+                        
                         await fetchAndParse(parts);
+
+                        // 👉 THUẬT TOÁN LÀM MÁT AI: NGHỈ 4 GIÂY ĐỂ TRÁNH QUÁ TẢI 15 RPM
+                        if (i + batchSize < uploadImgs.length) {
+                            status.innerText = `ĐANG LÀM MÁT AI ĐỂ CHỐNG NGHẼN (Đợi 4s)...`;
+                            await sleep(4000); 
+                        }
                     }
                 }
                 status.style.display = 'none';
                 if(masterQuiz.length > 0) { saveLocal(); renderReviewUI(); toScr('scr-review'); document.getElementById('btn-load-local').style.display = 'flex'; }
-            } catch (error) { status.style.display = 'none'; }
+            } catch (error) { 
+                alert("LỖI MÁY CHỦ: " + error.message);
+                status.style.display = 'none'; 
+            }
         }
 
         function renderReviewUI() {
