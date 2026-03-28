@@ -258,28 +258,7 @@
                             model: modelName,
                             payload: {
                                 contents: [{ parts }],
-                                generationConfig: { 
-                                    responseMimeType: "application/json",
-                                    responseSchema: {
-                                        type: "OBJECT",
-                                        properties: {
-                                            questions: {
-                                                type: "ARRAY",
-                                                items: {
-                                                    type: "OBJECT",
-                                                    properties: {
-                                                        question: { type: "STRING" },
-                                                        options: { type: "ARRAY", items: { type: "STRING" } },
-                                                        correctIndex: { type: "INTEGER" },
-                                                        explanation: { type: "STRING" }
-                                                    },
-                                                    required: ["question", "options", "correctIndex", "explanation"]
-                                                }
-                                            }
-                                        },
-                                        required: ["questions"]
-                                    }
-                                }
+                                generationConfig: { responseMimeType: "application/json" }
                             }
                         })
                     });
@@ -297,9 +276,17 @@
                         throw new Error("Dữ liệu rỗng");
                     }
 
+                    // Tự động dọn dẹp JSON rác do AI nhả ra
+                    textResult = textResult.replace(/```json/g,'').replace(/```/g,'').trim();
+                    const startIndex = textResult.indexOf('['); const endIndex = textResult.lastIndexOf(']');
+                    if(startIndex !== -1 && endIndex !== -1) {
+                        textResult = textResult.substring(startIndex, endIndex + 1);
+                    }
+                    textResult = textResult.replace(/,\s*([\]}])/g, '$1');
+
                     const json = JSON.parse(textResult);
-                    if(json.questions && Array.isArray(json.questions)) {
-                        masterQuiz = [...masterQuiz, ...json.questions];
+                    if(Array.isArray(json)) {
+                        masterQuiz = [...masterQuiz, ...json];
                     }
                     return; 
                 } catch (e) { 
@@ -316,7 +303,10 @@
             status.style.display = 'block'; masterQuiz = [];
             const batchSize = 1; const totalBatches = uploadImgs.length;
             
-            const prompt = `Trích xuất 100% câu hỏi trắc nghiệm từ ảnh. BẮT BUỘC KHÔNG BỎ SÓT CÂU NÀO. Dùng $...$ cho Toán/LaTeX. Hãy tuân thủ cấu trúc JSON được yêu cầu. Nếu không biết đáp án đúng, hãy để correctIndex là 0 và explanation là "Chưa có giải thích".`;
+            const prompt = `Nhiệm vụ: Trích xuất 100% câu hỏi trắc nghiệm từ ảnh. BẮT BUỘC KHÔNG BỎ SÓT CÂU NÀO. Dùng $...$ cho Toán/LaTeX.
+QUY TẮC SỐ 1: Bắt buộc trả về đúng cấu trúc mảng JSON hợp lệ. 
+Mẫu: [{"question": "...", "options": ["...", "..."], "correctIndex": 0, "explanation": "..."}]
+Nếu không biết giải thích, hãy điền "Chưa có giải thích". Cẩn thận với các ký tự nháy kép.`;
 
             try {
                 if (uploadImgs.length === 0) {
@@ -329,27 +319,18 @@
                         const parts = [{ text: prompt + (i===0 ? "\nText bổ sung: " + extra : "") }];
                         chunk.forEach(m => parts.push({ inlineData: m }));
                         
-                        let success = false;
-                        let retries = 0;
-                        while (!success && retries < 3) {
-                            try {
-                                await fetchAndParse(parts);
-                                success = true;
-                            } catch (e) {
-                                retries++;
-                                if (retries >= 3) {
-                                    console.error(`Bị lỗi ở nhóm ${Math.floor(i/batchSize)+1}: ${e.message}`);
-                                    status.innerText = `⚠️ Bỏ qua nhóm ${Math.floor(i/batchSize)+1} do lỗi...`;
-                                } else {
-                                    status.innerText = `⏳ Quá tải, thử lại lần ${retries}...`;
-                                    await sleep(6000);
-                                }
-                            }
+                        // Đã tháo bỏ vòng lặp Retry gây hao phí quota. Gửi 1 lần duy nhất, lỗi thì báo và đi tiếp!
+                        try {
+                            await fetchAndParse(parts);
+                        } catch (e) {
+                            console.error(`Lỗi quét ảnh ${Math.floor(i/batchSize)+1}: ${e.message}`);
+                            status.innerText = `⚠️ Lỗi quét ảnh ${Math.floor(i/batchSize)+1}. Hệ thống lướt qua để tránh kẹt...`;
+                            await sleep(2000); 
                         }
 
                         if (i + batchSize < uploadImgs.length) {
-                            status.innerText = `❄️ LÀM MÁT AI ĐỂ TRÁNH QUÁ TẢI (Đợi 6s)...`;
-                            await sleep(6000); 
+                            status.innerText = `❄️ LÀM MÁT AI ĐỂ TRÁNH QUÁ TẢI (Đợi 4s)...`;
+                            await sleep(4000); 
                         }
                     }
                 }
