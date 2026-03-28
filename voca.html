@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voca Master - Cyber AI Edition</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ea;
+            --neon-green: #39ff14;
+            --neon-yellow: #ffea00;
+            --glass-bg: rgba(15, 15, 25, 0.85);
+            --text-main: #ffffff;
+            --bg-dark: #0b1320;
+        }
+
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
+        
+        body { 
+            background: linear-gradient(-45deg, #0a0514, #1c0a24, #050a14, #0a0514);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+            padding: 40px 20px; 
+            font-size: 16px;
+        }
+
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .container { 
+            background: var(--glass-bg); 
+            width: 100%; 
+            max-width: 1100px; 
+            border-radius: 20px; 
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.15); 
+            padding: 35px; 
+        }
+
+        h1 { 
+            text-align: center; font-family: 'Orbitron', sans-serif; color: #fff; 
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+            margin-bottom: 25px; font-size: 2.5rem; letter-spacing: 3px;
+        }
+
+        .lang-selector-container { text-align: center; margin-bottom: 25px; }
+        #lang-select {
+            width: auto; display: inline-block; font-size: 1.3rem; font-weight: 700; 
+            background: var(--bg-dark); color: var(--neon-blue); border: 2px solid var(--neon-blue);
+            padding: 10px 30px; border-radius: 12px; cursor: pointer; text-align: center;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        .auth-section { background: rgba(0,0,0,0.6); padding: 30px; border-radius: 16px; text-align: center; border: 1px solid var(--neon-blue); }
+        .auth-section p { font-size: 1.1rem; margin-bottom: 20px; color: #ddd; }
+        
+        .btn { 
+            border: none; border-radius: 12px; padding: 15px 25px; font-weight: 700; font-size: 1.1rem; 
+            cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-auth { background: transparent; color: var(--neon-blue); border: 2px solid var(--neon-blue); }
+        .btn-auth:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
+        .btn-danger { background: transparent; color: var(--neon-pink); border: 2px solid var(--neon-pink); }
+        .btn-danger:hover { background: var(--neon-pink); color: #fff; box-shadow: 0 0 20px var(--neon-pink); }
+
+        .tabs { display: flex; gap: 15px; margin-bottom: 30px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap;}
+        .tabs button { 
+            flex: 1; min-width: 150px; padding: 15px; cursor: pointer; border: none; background: transparent; 
+            border-radius: 12px; font-weight: 700; color: #888; transition: 0.3s; font-size: 1.1rem; font-family: 'Orbitron', sans-serif;
+        }
+        .tabs button.active { background: rgba(0, 243, 255, 0.15); color: var(--neon-blue); border: 1px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3) inset; }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+
+        .input-group, .search-group, .game-config { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; align-items: center; }
+        .input-wrapper { flex: 1; min-width: 150px; position: relative; }
+        .input-wrapper i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--neon-blue); font-size: 1.2rem; }
+        input, select { 
+            width: 100%; padding: 18px 18px 18px 50px; border: 2px solid rgba(0, 243, 255, 0.3); 
+            border-radius: 12px; font-size: 1.1rem; outline: none; transition: 0.3s; 
+            background: rgba(0,0,0,0.7); color: #fff; font-weight: 500;
+        }
+        select { padding: 18px; }
+        input:focus, select:focus { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+        
+        .search-group input { padding-left: 50px; border-color: var(--neon-pink); }
+        .search-group i { color: var(--neon-pink); }
+        .search-group input:focus { border-color: var(--neon-pink); box-shadow: 0 0 15px rgba(255, 0, 234, 0.4); }
+
+        .btn-add { background: transparent; color: var(--neon-green); border: 2px solid var(--neon-green); font-size: 1.2rem; min-width: 150px;}
+        .btn-add:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 20px var(--neon-green); }
+        .btn-add.editing { color: var(--neon-yellow); border-color: var(--neon-yellow); }
+        .btn-add.editing:hover { background: var(--neon-yellow); color: #000; box-shadow: 0 0 20px var(--neon-yellow); }
+
+        .btn-sync { width: 100%; background: var(--bg-dark); color: #fff; border: 2px solid #fff; margin-bottom: 25px; transition: 0.3s; font-size: 1.2rem; }
+        .btn-sync:hover { background: #fff; color: #000; box-shadow: 0 0 20px #fff; }
+
+        .table-container { max-height: 400px; overflow-y: auto; overflow-x: auto; border-radius: 12px; border: 1px solid rgba(0, 243, 255, 0.3); background: rgba(0,0,0,0.5); }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { 
+            background: var(--bg-dark);
+            padding: 20px; text-align: left; font-weight: 700; color: var(--neon-blue); 
+            position: sticky; top: 0; z-index: 10; font-size: 1.1rem;
+            border-bottom: 2px solid var(--neon-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            white-space: nowrap;
+        }
+        td { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: middle; font-size: 1.1rem; }
+        tr:hover { background: rgba(0, 243, 255, 0.05); }
+        
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-action { background: transparent; border: 2px solid; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;}
+        .btn-edit { color: var(--neon-yellow); border-color: var(--neon-yellow); }
+        .btn-edit:hover { background: var(--neon-yellow); color: #000; box-shadow: 0 0 15px var(--neon-yellow); }
+        .btn-delete { color: var(--neon-pink); border-color: var(--neon-pink); }
+        .btn-delete:hover { background: var(--neon-pink); color: #fff; box-shadow: 0 0 15px var(--neon-pink); }
+
+        /* Style cho từ vựng có thể bấm đọc */
+        .speakable-word { cursor: pointer; transition: color 0.2s, text-shadow 0.2s; display: inline-flex; align-items: center; gap: 8px;}
+        .speakable-word:hover { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
+        .speakable-word i { font-size: 0.9em; opacity: 0.7; }
+        .speakable-word:hover i { opacity: 1; }
+
+        /* Game Board Styles */
+        .game-config label { font-weight: 600; color: var(--neon-green); }
+        #game-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-top: 20px; }
+        
+        .tile {
+            background: var(--bg-dark); border: 2px solid var(--neon-blue); color: #fff;
+            padding: 20px 10px; border-radius: 15px; text-align: center; font-size: 1.2rem; font-weight: 600;
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+            min-height: 100px; word-break: break-word; user-select: none;
+        }
+        .tile:hover { box-shadow: 0 0 15px var(--neon-blue); transform: translateY(-3px); }
+        .tile.selected { background: var(--neon-blue); color: #000; box-shadow: 0 0 25px var(--neon-blue); }
+        .tile.matched { visibility: hidden; opacity: 0; transition: 0.5s; pointer-events: none; }
+        .tile.wrong { background: var(--neon-pink); border-color: var(--neon-pink); color: #fff; animation: shake 0.4s; }
+
+        .memory-tile { perspective: 1000px; background: transparent; border: none; min-height: 100px; cursor: pointer; user-select: none;}
+        .memory-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .memory-tile.flipped .memory-inner { transform: rotateY(180deg); }
+        .memory-tile.matched .memory-inner { visibility: hidden; opacity: 0; transition: 0.5s; pointer-events: none;}
+        .memory-tile.wrong .memory-inner { animation: shake 0.4s; }
+        .memory-front, .memory-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 15px; border: 2px solid var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); padding: 10px; word-break: break-word; font-size: 1.2rem; font-weight: 600;}
+        .memory-front { background: var(--bg-dark); color: var(--neon-blue); font-size: 2.5rem; }
+        .memory-back { background: var(--neon-blue); color: #000; transform: rotateY(180deg); }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0) rotateY(180deg);} 25% {transform: translateX(-8px) rotateY(180deg);} 75% {transform: translateX(8px) rotateY(180deg);} }
+        @keyframes shakeFront { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-8px);} 75% {transform: translateX(8px);} }
+        .tile.wrong { animation: shakeFront 0.4s; }
+
+        .ai-panel { background: rgba(0,0,0,0.6); padding: 25px; border-radius: 16px; border: 1px dashed var(--neon-pink); margin-bottom: 25px; }
+        .btn-ai-action { width: 100%; margin-bottom: 15px; background: linear-gradient(45deg, #ff00ea, #00f3ff); border: none; color: white; text-shadow: 0 0 5px #fff; box-shadow: 0 0 15px rgba(255,0,234,0.3); font-size: 1.2rem; padding: 18px;}
+        .btn-ai-action:hover { box-shadow: 0 0 25px rgba(0,243,255,0.6); transform: scale(1.02); }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 10px; }
+        
+        @media (max-width: 768px) { 
+            .input-group { flex-direction: column; } .btn-add { width: 100%; } 
+            h1 { font-size: 2rem; }
+            #game-board { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 480px) {
+            #game-board { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1><i class="fas fa-microchip"></i> CYBER VOCA</h1>
+
+        <div class="lang-selector-container">
+            <select id="lang-select" onchange="switchLanguage()">
+                <option value="EN">🇺🇸 TIẾNG ANH</option>
+                <option value="JP">🇯🇵 TIẾNG NHẬT</option>
+            </select>
+        </div>
+
+        <div class="auth-section" id="auth-section">
+            <i class="fab fa-google" style="font-size: 60px; color: var(--neon-blue); margin-bottom: 20px; text-shadow: 0 0 20px var(--neon-blue);"></i>
+            <p>Đăng nhập để khởi động hệ thống đồng bộ đám mây.</p>
+            <button id="authorize_button" class="btn btn-auth" onclick="handleAuthClick()"><i class="fas fa-power-off"></i> KẾT NỐI HỆ THỐNG</button>
+            <button id="signout_button" class="btn btn-danger" style="display: none;" onclick="handleSignoutClick()"><i class="fas fa-sign-out-alt"></i> NGẮT KẾT NỐI</button>
+        </div>
+
+        <div id="app-core">
+            <div class="tabs">
+                <button id="btn-manage" class="active" onclick="showTab('manage')"><i class="fas fa-database"></i> DỮ LIỆU</button>
+                <button id="btn-review" onclick="showTab('review')"><i class="fas fa-gamepad"></i> TRÒ CHƠI GIẢ LẬP</button>
+                <button id="btn-ai" onclick="showTab('ai')"><i class="fas fa-brain"></i> AI LÕI</button>
+            </div>
+
+            <div id="manage" class="tab-content active">
+                
+                <div class="search-group">
+                    <div class="input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" oninput="renderList()" placeholder="Tìm kiếm nhanh từ vựng hoặc ý nghĩa...">
+                    </div>
+                </div>
+
+                <div id="inputs-en" class="input-group">
+                    <div class="input-wrapper"><i class="fas fa-terminal"></i><input type="text" id="word-en" placeholder="Từ vựng..."></div>
+                    <div class="input-wrapper"><i class="fas fa-volume-up"></i><input type="text" id="pronunciation-en" placeholder="Phiên âm..."></div>
+                    <div class="input-wrapper"><i class="fas fa-code"></i><input type="text" id="meaning-en" placeholder="Nghĩa..."></div>
+                    <button class="btn btn-add" id="btnAdd-en" onclick="addWord()"><i class="fas fa-plus"></i> NẠP TỪ</button>
+                </div>
+
+                <div id="inputs-jp" class="input-group" style="display: none;">
+                    <div class="input-wrapper"><i class="fas fa-terminal"></i><input type="text" id="word-jp" placeholder="Từ..."></div>
+                    <div class="input-wrapper"><i class="fas fa-volume-up"></i><input type="text" id="pronunciation-jp" placeholder="Phiên âm..."></div>
+                    <div class="input-wrapper"><i class="fas fa-tag"></i><input type="text" id="type-jp" placeholder="Từ loại..."></div>
+                    <div class="input-wrapper"><i class="fas fa-yin-yang"></i><input type="text" id="hanviet-jp" placeholder="Hán việt..."></div>
+                    <div class="input-wrapper"><i class="fas fa-code"></i><input type="text" id="meaning-jp" placeholder="Nghĩa..."></div>
+                    <button class="btn btn-add" id="btnAdd-jp" onclick="addWord()"><i class="fas fa-plus"></i> NẠP TỪ</button>
+                </div>
+                
+                <button class="btn btn-sync" onclick="syncToSheet()" id="syncBtn"><i class="fas fa-satellite-dish"></i> ĐỒNG BỘ MÁY CHỦ GOOGLE</button>
+                
+                <div class="table-container">
+                    <table id="wordTable">
+                        <thead id="tableHead"></thead>
+                        <tbody id="wordList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="review" class="tab-content">
+                <div class="game-config">
+                    <div class="input-wrapper">
+                        <i class="fas fa-gamepad"></i>
+                        <select id="gameMode" onchange="initGame()">
+                            <option value="1">Chế độ 1: Nối từ (Hiện chữ)</option>
+                            <option value="2">Chế độ 2: Lật thẻ nhớ (Ẩn chữ)</option>
+                        </select>
+                    </div>
+                    <div class="input-wrapper" style="max-width: 250px;">
+                        <i class="fas fa-border-all"></i>
+                        <input type="number" id="gameRows" value="2" min="1" max="10" onchange="initGame()" placeholder="Số hàng (Mặc định 5 cột)">
+                    </div>
+                    <button class="btn btn-auth" onclick="initGame()"><i class="fas fa-redo"></i> TẠO GAME MỚI</button>
+                </div>
+                
+                <div id="game-status" style="text-align: center; margin-bottom: 10px; color: var(--neon-green); font-size: 1.2rem; font-weight: bold;"></div>
+                <div id="game-board"></div>
+            </div>
+
+            <div id="ai" class="tab-content">
+                <div class="ai-panel">
+                    <div class="input-wrapper" style="margin-bottom: 20px;">
+                        <i class="fas fa-key"></i>
+                        <input type="password" id="geminiApiKey" placeholder="Nhập API Key Gemini..." onchange="saveApiKey()">
+                    </div>
+                    <p style="color: var(--neon-yellow); margin-bottom: 15px; text-align: center; font-size: 0.95rem;">
+                        <i class="fas fa-info-circle"></i> AI sẽ phân tích và cập nhật trực tiếp Chủ Đề vào Dữ Liệu và Đồng Bộ lên Google Sheet.
+                    </p>
+                    <button class="btn btn-ai-action" onclick="categorizeWordsAI()" id="btn-categorize"><i class="fas fa-project-diagram"></i> AI: TỰ ĐỘNG PHÂN LOẠI CHỦ ĐỀ CHUẨN</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+
+    <script>
+        const CLIENT_ID = '681672508523-4bqjan7vjpnaa88n4l70i4n9nbfpftr7.apps.googleusercontent.com';
+        const DISCOVERY_DOCS = [
+            'https://sheets.googleapis.com/$discovery/rest?version=v4',
+            'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
+        ];
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.metadata.readonly';
+
+        let tokenClient, gapiInited = false, gisInited = false;
+        let words = [];
+        let editingIndex = -1;
+        
+        let currentLang = 'EN';
+        let sheetIds = { EN: localStorage.getItem('sheetId_EN'), JP: localStorage.getItem('sheetId_JP') };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if(savedKey) document.getElementById('geminiApiKey').value = savedKey;
+            updateTableHeader();
+        });
+
+        function saveApiKey() { localStorage.setItem('gemini_api_key', document.getElementById('geminiApiKey').value.trim()); }
+
+        function gapiLoaded() { gapi.load('client', initializeGapiClient); }
+        async function initializeGapiClient() {
+            await gapi.client.init({ discoveryDocs: DISCOVERY_DOCS });
+            gapiInited = true;
+            if (gapi.client.getToken() !== null) setupAfterAuth();
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID, scope: SCOPES,
+                callback: async (resp) => {
+                    if (resp.error !== undefined) throw resp;
+                    setupAfterAuth();
+                },
+            });
+            gisInited = true;
+        }
+
+        async function setupAfterAuth() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('signout_button').style.display = 'inline-flex';
+            document.getElementById('app-core').style.display = 'block';
+            await initUserSheet();
+        }
+
+        function handleAuthClick() { if (tokenClient) tokenClient.requestAccessToken({prompt: 'consent'}); }
+        function handleSignoutClick() {
+            const token = gapi.client.getToken();
+            if (token !== null) {
+                google.accounts.oauth2.revoke(token.access_token, () => {
+                    gapi.client.setToken('');
+                    location.reload(); 
+                });
+            }
+        }
+
+        async function switchLanguage() {
+            currentLang = document.getElementById('lang-select').value;
+            
+            document.getElementById('inputs-en').style.display = currentLang === 'EN' ? 'flex' : 'none';
+            document.getElementById('inputs-jp').style.display = currentLang === 'JP' ? 'flex' : 'none';
+            
+            cancelEdit();
+            document.getElementById('searchInput').value = '';
+            words = [];
+            updateTableHeader();
+            renderList();
+            
+            if (gapi.client.getToken() !== null) await initUserSheet();
+        }
+
+        function updateTableHeader() {
+            const thead = document.getElementById('tableHead');
+            if (currentLang === 'EN') {
+                thead.innerHTML = `<tr><th>TỪ VỰNG</th><th>PHIÊN ÂM</th><th>CHỦ ĐỀ</th><th>NGHĨA</th><th style="width: 120px; text-align: center;">THAO TÁC</th></tr>`;
+            } else {
+                thead.innerHTML = `<tr><th>TỪ</th><th>PHIÊN ÂM</th><th>TỪ LOẠI</th><th>HÁN VIỆT</th><th>CHỦ ĐỀ</th><th>NGHĨA</th><th style="width: 120px; text-align: center;">THAO TÁC</th></tr>`;
+            }
+        }
+
+        async function initUserSheet() {
+            try {
+                const fileName = `Voca_Master_${currentLang}`;
+                const searchResponse = await gapi.client.drive.files.list({
+                    q: `name = '${fileName}' and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false`,
+                    fields: 'files(id, name)', pageSize: 1
+                });
+                
+                let sheetId;
+                const files = searchResponse.result.files;
+                if (files && files.length > 0) {
+                    sheetId = files[0].id;
+                } else {
+                    const createResponse = await gapi.client.sheets.spreadsheets.create({
+                        resource: { properties: { title: fileName } }
+                    });
+                    sheetId = createResponse.result.spreadsheetId;
+                    
+                    const headers = currentLang === 'EN' ? [["Từ vựng", "Phiên âm", "Nghĩa", "Chủ đề"]] : [["Từ", "Phiên âm", "Từ loại", "Hán việt", "Nghĩa", "Chủ đề"]];
+                    const range = currentLang === 'EN' ? 'A1:D1' : 'A1:F1';
+                    
+                    await gapi.client.sheets.spreadsheets.values.update({
+                        spreadsheetId: sheetId, range: range, valueInputOption: 'USER_ENTERED',
+                        resource: { values: headers }
+                    });
+                }
+                sheetIds[currentLang] = sheetId;
+                localStorage.setItem(`sheetId_${currentLang}`, sheetId);
+                await fetchWordsFromSheet();
+            } catch (err) {}
+        }
+
+        async function fetchWordsFromSheet() {
+            const sheetId = sheetIds[currentLang];
+            if (!sheetId) return;
+            try {
+                const range = currentLang === 'EN' ? 'A2:D' : 'A2:F';
+                const response = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: range });
+                const rows = response.result.values;
+                words = [];
+                if (rows && rows.length > 0) {
+                    rows.forEach(row => {
+                        if (currentLang === 'EN') {
+                            if(row[0] || row[2]) words.push({ word: row[0] || "", pronunciation: row[1] || "", meaning: row[2] || "", topic: row[3] || "" });
+                        } else {
+                            if(row[0] || row[4]) words.push({ word: row[0] || "", pronunciation: row[1] || "", type: row[2] || "", hanviet: row[3] || "", meaning: row[4] || "", topic: row[5] || "" });
+                        }
+                    });
+                }
+                renderList();
+            } catch (err) {}
+        }
+
+        async function syncToSheet() {
+            const sheetId = sheetIds[currentLang];
+            if(!sheetId) return;
+            const btn = document.getElementById('syncBtn');
+            try {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG TRUYỀN TẢI...';
+                
+                const dataToSync = currentLang === 'EN' ? [["Từ vựng", "Phiên âm", "Nghĩa", "Chủ đề"]] : [["Từ", "Phiên âm", "Từ loại", "Hán việt", "Nghĩa", "Chủ đề"]];
+                
+                words.forEach(w => {
+                    if (currentLang === 'EN') {
+                        dataToSync.push([w.word, w.pronunciation, w.meaning, w.topic || '']);
+                    } else {
+                        dataToSync.push([w.word, w.pronunciation, w.type, w.hanviet, w.meaning, w.topic || '']);
+                    }
+                });
+
+                const clearRange = currentLang === 'EN' ? 'A:D' : 'A:F';
+                await gapi.client.sheets.spreadsheets.values.clear({ spreadsheetId: sheetId, range: clearRange });
+                await gapi.client.sheets.spreadsheets.values.update({
+                    spreadsheetId: sheetId, range: 'A1', valueInputOption: 'USER_ENTERED', resource: { values: dataToSync }
+                });
+                renderList();
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> ĐỒNG BỘ THÀNH CÔNG';
+                setTimeout(() => { btn.innerHTML = '<i class="fas fa-satellite-dish"></i> ĐỒNG BỘ MÁY CHỦ GOOGLE'; }, 2000);
+            } catch (err) {
+                btn.innerHTML = '<i class="fas fa-satellite-dish"></i> THỬ LẠI';
+            }
+        }
+
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-' + id).classList.add('active');
+            if(id === 'review') initGame();
+        }
+
+        // --- HÀM PHÁT ÂM (TEXT-TO-SPEECH) ---
+        // --- HÀM PHÁT ÂM (TEXT-TO-SPEECH) ĐÃ FIX LỖI ---
+        function speakWord(index) {
+            // Lấy trực tiếp từ vựng dựa vào vị trí index trong mảng gốc
+            const targetWord = words[index].word; 
+            
+            if (!window.speechSynthesis) {
+                alert("Trình duyệt của Sếp không hỗ trợ tính năng đọc phát âm!");
+                return;
+            }
+            
+            // Hủy đọc cũ nếu đang đọc dở
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(targetWord);
+            // Thiết lập ngôn ngữ giọng đọc
+            utterance.lang = currentLang === 'EN' ? 'en-US' : 'ja-JP';
+            utterance.rate = 0.9; // Đọc chậm lại một xíu cho dễ nghe rõ
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function renderList() {
+            const tbody = document.getElementById('wordList');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            // Lọc danh sách theo tìm kiếm
+            const filteredWords = words.map((w, index) => ({...w, originalIndex: index})).filter(w => {
+                return w.word.toLowerCase().includes(searchQuery) || w.meaning.toLowerCase().includes(searchQuery);
+            });
+
+            filteredWords.sort((a, b) => a.word.localeCompare(b.word, currentLang === 'JP' ? 'ja' : 'en'));
+            
+            tbody.innerHTML = filteredWords.map((w) => {
+                if (currentLang === 'EN') {
+                    return `<tr>
+                        <td><strong class="speakable-word" onclick="speakWord(${w.originalIndex})" title="Bấm để nghe phát âm"><i class="fas fa-volume-up"></i> ${w.word}</strong></td>
+                        <td>${w.pronunciation}</td>
+                        <td style="color: var(--neon-green);">${w.topic || '-'}</td>
+                        <td>${w.meaning}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-action btn-edit" onclick="editWord(${w.originalIndex})"><i class="fas fa-pen"></i></button>
+                                <button class="btn-action btn-delete" onclick="deleteWord(${w.originalIndex})"><i class="fas fa-times"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                } else {
+                    return `<tr>
+                        <td><strong class="speakable-word" onclick="speakWord(${w.originalIndex})" title="Bấm để nghe phát âm"><i class="fas fa-volume-up"></i> ${w.word}</strong></td>
+                        <td>${w.pronunciation}</td>
+                        <td>${w.type}</td>
+                        <td>${w.hanviet}</td>
+                        <td style="color: var(--neon-green);">${w.topic || '-'}</td>
+                        <td>${w.meaning}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-action btn-edit" onclick="editWord(${w.originalIndex})"><i class="fas fa-pen"></i></button>
+                                <button class="btn-action btn-delete" onclick="deleteWord(${w.originalIndex})"><i class="fas fa-times"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                }
+            }).join('');
+        }
+
+        function addWord() {
+            if (currentLang === 'EN') {
+                const w = document.getElementById('word-en').value.trim();
+                const p = document.getElementById('pronunciation-en').value.trim();
+                const m = document.getElementById('meaning-en').value.trim();
+                if(w || m) {
+                    if(editingIndex > -1) {
+                        words[editingIndex] = { ...words[editingIndex], word: w, pronunciation: p, meaning: m };
+                    } else {
+                        words.push({word: w, pronunciation: p, meaning: m, topic: ''});
+                    }
+                }
+            } else {
+                const w = document.getElementById('word-jp').value.trim();
+                const p = document.getElementById('pronunciation-jp').value.trim();
+                const t = document.getElementById('type-jp').value.trim();
+                const h = document.getElementById('hanviet-jp').value.trim();
+                const m = document.getElementById('meaning-jp').value.trim();
+                if(w || m) {
+                    if(editingIndex > -1) {
+                        words[editingIndex] = { ...words[editingIndex], word: w, pronunciation: p, type: t, hanviet: h, meaning: m };
+                    } else {
+                        words.push({word: w, pronunciation: p, type: t, hanviet: h, meaning: m, topic: ''});
+                    }
+                }
+            }
+            cancelEdit();
+            renderList();
+        }
+
+        function editWord(index) {
+            editingIndex = index;
+            const w = words[index];
+            if (currentLang === 'EN') {
+                document.getElementById('word-en').value = w.word || '';
+                document.getElementById('pronunciation-en').value = w.pronunciation || '';
+                document.getElementById('meaning-en').value = w.meaning || '';
+                const btn = document.getElementById('btnAdd-en');
+                btn.innerHTML = '<i class="fas fa-save"></i> LƯU SỬA';
+                btn.classList.add('editing');
+            } else {
+                document.getElementById('word-jp').value = w.word || '';
+                document.getElementById('pronunciation-jp').value = w.pronunciation || '';
+                document.getElementById('type-jp').value = w.type || '';
+                document.getElementById('hanviet-jp').value = w.hanviet || '';
+                document.getElementById('meaning-jp').value = w.meaning || '';
+                const btn = document.getElementById('btnAdd-jp');
+                btn.innerHTML = '<i class="fas fa-save"></i> LƯU SỬA';
+                btn.classList.add('editing');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            editingIndex = -1;
+            if (currentLang === 'EN') {
+                document.getElementById('word-en').value = '';
+                document.getElementById('pronunciation-en').value = '';
+                document.getElementById('meaning-en').value = '';
+                const btn = document.getElementById('btnAdd-en');
+                btn.innerHTML = '<i class="fas fa-plus"></i> NẠP TỪ';
+                btn.classList.remove('editing');
+            } else {
+                document.getElementById('word-jp').value = '';
+                document.getElementById('pronunciation-jp').value = '';
+                document.getElementById('type-jp').value = '';
+                document.getElementById('hanviet-jp').value = '';
+                document.getElementById('meaning-jp').value = '';
+                const btn = document.getElementById('btnAdd-jp');
+                btn.innerHTML = '<i class="fas fa-plus"></i> NẠP TỪ';
+                btn.classList.remove('editing');
+            }
+        }
+
+        function deleteWord(index) { 
+            if(confirm("Bạn có chắc chắn muốn xóa?")) {
+                words.splice(index, 1); 
+                renderList(); 
+                if(editingIndex === index) cancelEdit();
+            }
+        }
+
+        // --- GAME LOGIC ---
+        let firstTile = null;
+        let memoryFlippedTiles = [];
+
+        function initGame() {
+            const board = document.getElementById('game-board');
+            const status = document.getElementById('game-status');
+            const mode = parseInt(document.getElementById('gameMode').value);
+            const rows = parseInt(document.getElementById('gameRows').value) || 2;
+            const totalTiles = rows * 5;
+            const requiredWords = Math.floor(totalTiles / 2);
+
+            board.innerHTML = '';
+            firstTile = null;
+            memoryFlippedTiles = [];
+            
+            board.style.gridTemplateColumns = window.innerWidth <= 768 ? (window.innerWidth <= 480 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)') : 'repeat(5, 1fr)';
+
+            let validWords = words.filter(w => w.word && w.meaning);
+            if(validWords.length < requiredWords) {
+                 status.innerHTML = `<span style="color: var(--neon-pink);">Kho cần ít nhất ${requiredWords} từ có đủ Nghĩa để chơi với cấu hình này! Hiện có: ${validWords.length}. Hãy giảm số hàng hoặc thêm từ.</span>`;
+                 return;
+            }
+
+            status.innerHTML = mode === 1 ? 'Chế độ Nối Từ: Hãy bấm vào cặp Từ và Nghĩa tương ứng!' : 'Chế độ Thẻ Nhớ: Lật 2 thẻ liên tiếp để tìm cặp tương ứng!';
+
+            let gameWords = [...validWords].sort(() => 0.5 - Math.random()).slice(0, requiredWords);
+            let tilesData = [];
+            gameWords.forEach(w => {
+                tilesData.push({ text: w.word, type: 'word', id: w.word });
+                tilesData.push({ text: w.meaning, type: 'meaning', id: w.word });
+            });
+            
+            tilesData.sort(() => 0.5 - Math.random());
+
+            tilesData.forEach(tile => {
+                let div = document.createElement('div');
+                div.dataset.id = tile.id;
+                div.dataset.type = tile.type;
+                
+                if (mode === 1) {
+                    div.className = 'tile';
+                    div.innerText = tile.text;
+                    div.onclick = () => handleTileClickMode1(div);
+                } else {
+                    div.className = 'memory-tile';
+                    div.innerHTML = `
+                        <div class="memory-inner">
+                            <div class="memory-front"><i class="fas fa-brain"></i></div>
+                            <div class="memory-back">${tile.text}</div>
+                        </div>
+                    `;
+                    div.onclick = () => handleTileClickMode2(div);
+                }
+                board.appendChild(div);
+            });
+        }
+
+        function handleTileClickMode1(tile) {
+            if(tile.classList.contains('matched') || tile === firstTile) return;
+            tile.classList.add('selected');
+
+            if(!firstTile) {
+                firstTile = tile;
+            } else {
+                if(firstTile.dataset.id === tile.dataset.id && firstTile.dataset.type !== tile.dataset.type) {
+                    firstTile.classList.replace('selected', 'matched');
+                    tile.classList.replace('selected', 'matched');
+                    firstTile = null;
+                    checkWinMode1();
+                } else {
+                    let tempFirst = firstTile;
+                    tile.classList.replace('selected', 'wrong');
+                    tempFirst.classList.replace('selected', 'wrong');
+                    setTimeout(() => {
+                        tile.classList.remove('wrong');
+                        tempFirst.classList.remove('wrong');
+                    }, 500);
+                    firstTile = null;
+                }
+            }
+        }
+
+        function checkWinMode1() {
+            if(document.querySelectorAll('.tile:not(.matched)').length === 0) {
+                setTimeout(() => { alert('🎉 TUYỆT VỜI! Đã hoàn thành!'); initGame(); }, 500);
+            }
+        }
+
+        function handleTileClickMode2(tile) {
+            if(tile.classList.contains('matched') || tile.classList.contains('flipped') || memoryFlippedTiles.length >= 2) return;
+            
+            tile.classList.add('flipped');
+            memoryFlippedTiles.push(tile);
+
+            if(memoryFlippedTiles.length === 2) {
+                let t1 = memoryFlippedTiles[0];
+                let t2 = memoryFlippedTiles[1];
+
+                if(t1.dataset.id === t2.dataset.id && t1.dataset.type !== t2.dataset.type) {
+                    setTimeout(() => {
+                        t1.classList.add('matched');
+                        t2.classList.add('matched');
+                        memoryFlippedTiles = [];
+                        checkWinMode2();
+                    }, 600);
+                } else {
+                    t1.classList.add('wrong');
+                    t2.classList.add('wrong');
+                    setTimeout(() => {
+                        t1.classList.remove('flipped', 'wrong');
+                        t2.classList.remove('flipped', 'wrong');
+                        memoryFlippedTiles = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        function checkWinMode2() {
+            if(document.querySelectorAll('.memory-tile:not(.matched)').length === 0) {
+                setTimeout(() => { alert('🎉 TUYỆT VỜI! Trí nhớ cực tốt!'); initGame(); }, 500);
+            }
+        }
+
+        async function categorizeWordsAI() {
+            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            if (!apiKey) { alert('Hệ thống yêu cầu Gemini API Key!'); return; }
+            if (words.length === 0) { alert('Chưa có dữ liệu để phân tích.'); return; }
+
+            const btn = document.getElementById('btn-categorize');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG PHÂN TÍCH...';
+            
+            const wordListStr = words.map(w => w.word).join(", ");
+            const prompt = `Phân loại các từ vựng sau. BẮT BUỘC chỉ được dùng 10 chủ đề sau: Động vật, Thực vật, Đồ vật, Con người, Công nghệ, Khái niệm, Hành động, Tính từ, Nơi chốn, Khác. Trả về ĐÚNG 1 object JSON (key: tên chủ đề, value: mảng các từ gốc). Danh sách: ${wordListStr}`;
+            
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${apiKey}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+                });
+                const data = await response.json();
+                if(data.error) throw new Error(data.error.message);
+                
+                const aiData = JSON.parse(data.candidates[0].content.parts[0].text);
+                
+                for (const [topic, items] of Object.entries(aiData)) {
+                    if(Array.isArray(items)) {
+                        items.forEach(item => {
+                            let target = words.find(w => w.word.toLowerCase() === item.toLowerCase());
+                            if (target) target.topic = topic;
+                        });
+                    }
+                }
+                
+                btn.innerHTML = '<i class="fas fa-check"></i> ĐÃ LƯU KẾT QUẢ VÀO SHEET';
+                setTimeout(() => { btn.innerHTML = '<i class="fas fa-project-diagram"></i> AI: TỰ ĐỘNG PHÂN LOẠI CHỦ ĐỀ CHUẨN'; }, 3000);
+                
+                renderList();
+                syncToSheet(); 
+                
+            } catch (error) { 
+                alert("Lỗi AI: " + error.message); 
+                btn.innerHTML = '<i class="fas fa-project-diagram"></i> AI: TỰ ĐỘNG PHÂN LOẠI CHỦ ĐỀ CHUẨN';
+            }
+        }
+    </script>
+</body>
+</html>
